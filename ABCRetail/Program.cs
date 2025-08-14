@@ -11,9 +11,13 @@ namespace ABCRetail
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            //Table storage
             var connectionString = builder.Configuration.GetConnectionString("AzureStorage");
             builder.Services.AddSingleton(new TableStorageService(connectionString));
 
+            //Blob storage
+            var connectionString2 = builder.Configuration.GetConnectionString("AzureStorage");
+            builder.Services.AddSingleton(new BlobService(connectionString2));
 
             var app = builder.Build();
 

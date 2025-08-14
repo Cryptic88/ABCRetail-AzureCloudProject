@@ -1,0 +1,79 @@
+﻿@model IEnumerable<ABCRetail.Models.Product>
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<h2 class="mb-4">Products</h2>
+
+<p>
+    <a asp-action="AddProduct" class="btn btn-success mb-4">Add New Product</a>
+</p>
+
+<form asp-action="Index" method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="searchString" class="form-control"
+               value="@ViewBag.SearchString" placeholder="Search by name or location" />
+    </div>
+
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(ViewBag.SearchString as string))
+    {
+        <div class="col-md-2">
+            <a href="@Url.Action("Index")" class="btn btn-secondary w-100">
+                <i class="bi bi-x-circle"></i> Clear
+            </a>
+        </div>
+    }
+</form>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var product in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                @if (!string.IsNullOrEmpty(product.ImageURL))
+                {
+                    <img src="@product.ImageURL" class="card-img-top" alt="@product.Product_Name"
+                         style="height: 200px; object-fit: cover;">
+                }
+
+                <div class="card-body">
+                    <h5 class="card-title">@product.Product_Name</h5>
+                    <p class="card-text"><strong>ID:</strong> @product.Product_ID</p>
+                    <p class="card-text"><strong>Description:</strong> @product.Description</p>
+                    <p class="card-text"><strong>Location:</strong> @product.Location</p>
+                </div>
+
+                <div class="btn-group p-2" role="group">
+                    <a asp-action="Edit" asp-route-id="@product.Product_ID" class="btn btn-sm btn-primary" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a asp-action="Details" asp-route-id="@product.Product_ID" class="btn btn-sm btn-info" title="Details">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <form asp-action="DeleteProduct" method="post" size="width: 75px;">
+                        <input type="hidden" name="partionkey" value="@product.PartitionKey" />
+                        <input type="hidden" name="rowKey" value="@product.RowKey" />
+                        <input type="hidden" name="ImageUrl" value="@product.ImageURL" />
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are you sure you want to delete this product?')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

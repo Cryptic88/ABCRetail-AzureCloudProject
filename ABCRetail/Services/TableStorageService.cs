@@ -24,7 +24,7 @@ namespace ABCRetail.Services
             }
             return birders;
         }
-        public async Task AddBirderAsync(Customer customer)
+        public async Task AddCustomerAsync(Customer customer)
         {
             if (string.IsNullOrEmpty(customer.PartitionKey) || string.IsNullOrEmpty(customer.RowKey))
             {
@@ -41,7 +41,7 @@ namespace ABCRetail.Services
             }
         }
 
-        public async Task<List<Product>> GetAllBirdsAsync()
+        public async Task<List<Product>> GetAllProductsAsync()
         {
             var products = new List<Product>();
             await foreach (var product in _productTableClient.QueryAsync<Product>())
@@ -51,7 +51,7 @@ namespace ABCRetail.Services
             return products;
         }
 
-        public async Task AddBirdAsync(Product product)
+        public async Task AddProductAsync(Product product)
         {
             if (string.IsNullOrEmpty(product.PartitionKey) || string.IsNullOrEmpty(product.RowKey))
             {
@@ -68,7 +68,7 @@ namespace ABCRetail.Services
             }
         }
 
-        public async Task DeleteBirdAsync(string partitionKey, string rowKey)
+        public async Task DeleteProductAsync(string partitionKey, string rowKey)
         {
             await _productTableClient.DeleteEntityAsync(partitionKey, rowKey);
         }
