@@ -1,8 +1,41 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<ABCRetail.Models.Product>
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<section class="hero-section">
+    <div class="hero-content text-center">
+        <h1 class="fw-bold display-4">Welcome to ABCRetail</h1>
+        <p class="lead">Your one-stop shop for quality products at unbeatable prices</p>
+        <a href="@Url.Action("Index", "Product")" class="btn btn-lg btn-warning shadow-sm mt-3">
+            <i class="bi bi-cart"></i> Shop Now
+        </a>
+    </div>
+</section>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4 fw-bold">Featured Products</h2>
+    <div class="row g-4">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <img src="@(!string.IsNullOrEmpty(product.ImageURL) ? product.ImageURL : "/images/placeholder.jpg")" 
+                    class="card-img-top" alt="@product.Product_Name">
+                    <div class="card-body text-center">
+                        <h5 class="card-title fw-bold">@product.Product_Name</h5>
+                        <p class="card-text text-muted">@product.Description</p>
+                        <a href="#" class="btn btn-outline-primary"><i class="bi bi-cart-plus"></i> Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container text-center">
+        <h2 class="fw-bold">Why Shop with ABCRetail?</h2>
+        <p class="text-muted mb-0">We pride ourselves on offering top-notch products, competitive prices, and excellent customer service.</p>
+    </div>
 </div>

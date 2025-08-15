@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using ABCRetail.Models;
+using ABCRetail.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ABCRetail.Controllers
@@ -7,15 +8,22 @@ namespace ABCRetail.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly TableStorageService _tableStorageService;
 
-        public HomeController(ILogger<HomeController> logger)
+
+        public HomeController(ILogger<HomeController> logger, TableStorageService tableStorageService)
         {
             _logger = logger;
+            _tableStorageService = tableStorageService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> IndexAsync()
         {
-            return View();
+            var allProducts = await _tableStorageService.GetAllProductsAsync();
+
+            var featuredProducts = allProducts.Take(3).ToList();
+
+            return View(featuredProducts);
         }
 
         public IActionResult Privacy()

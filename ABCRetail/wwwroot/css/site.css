@@ -20,3 +20,99 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.navbar {
+    background-color: #0d6efd; 
+}
+
+    .navbar .nav-link, .navbar-brand {
+        color: white !important;
+    }
+
+        .navbar .nav-link:hover {
+            color: #ffdd57 !important;
+        }
+
+
+.hero-section {
+    position: relative;
+    width: 100%;
+    margin: 0;
+    background: url('https://st10439009.blob.core.windows.net/products/Online_Shop.jpg') center/cover no-repeat;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.6); /* Semi-transparent background for text */
+    padding: 20px 30px;
+    border-radius: 10px;
+}
+
+    .hero-content h1 {
+        font-size: 3.5rem;
+        font-weight: bold;
+        text-shadow: 3px 3px 8px rgba(0,0,0,0.8);
+    }
+
+    .hero-content p {
+        font-size: 1.25rem;
+    }
+
+.card:hover {
+    transform: scale(1.03);
+    transition: 0.3s ease-in-out;
+}
+
+.card-img-top {
+    height: 250px;
+    object-fit: cover;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .card-img-top {
+        height: 200px;
+    }
+}
+
+.add-product-btn {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+    .add-product-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        background: linear-gradient(135deg, #20c997, #28a745);
+    }
+
+    .add-product-btn i {
+        transition: transform 0.3s ease;
+    }
+
+    .add-product-btn:hover i {
+        transform: rotate(20deg);
+    }
+
+.search-btn {
+    height: 50px; /* Keep height consistent with input */
+    min-width: 120px; /* Slightly wider than default */
+    font-weight: 500;
+    border-radius: 50px; /* Rounded-pill style */
+    transition: all 0.3s ease;
+}
+
+    .search-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        background-color: #0b5ed7; /* Slightly darker hover */
+    }

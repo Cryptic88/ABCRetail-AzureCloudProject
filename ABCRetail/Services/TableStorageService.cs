@@ -72,5 +72,10 @@ namespace ABCRetail.Services
         {
             await _productTableClient.DeleteEntityAsync(partitionKey, rowKey);
         }
+
+        public async Task DeleteCustomerAsync(string partitionKey, string rowKey)
+        {
+            await _customerTableClient.DeleteEntityAsync(partitionKey, rowKey);
+        }
     }
 }
