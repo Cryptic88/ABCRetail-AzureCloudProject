@@ -50,7 +50,7 @@ body {
 .hero-content {
     position: relative;
     z-index: 1;
-    background: rgba(0, 0, 0, 0.6); /* Semi-transparent background for text */
+    background: rgba(0, 0, 0, 0.6); 
     padding: 20px 30px;
     border-radius: 10px;
 }
@@ -104,15 +104,15 @@ body {
     }
 
 .search-btn {
-    height: 50px; /* Keep height consistent with input */
-    min-width: 120px; /* Slightly wider than default */
+    height: 50px; 
+    min-width: 120px; 
     font-weight: 500;
-    border-radius: 50px; /* Rounded-pill style */
+    border-radius: 50px; 
     transition: all 0.3s ease;
 }
 
     .search-btn:hover {
         transform: translateY(-1px);
         box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        background-color: #0b5ed7; /* Slightly darker hover */
+        background-color: #0b5ed7; 
     }

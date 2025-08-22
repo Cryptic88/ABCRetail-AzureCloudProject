@@ -19,6 +19,18 @@ namespace ABCRetail
             var connectionString2 = builder.Configuration.GetConnectionString("AzureStorage");
             builder.Services.AddSingleton(new BlobService(connectionString2));
 
+            builder.Services.AddSingleton<QueueService>(sp =>
+            {
+                var connectionString = builder.Configuration.GetConnectionString("AzureStorage");
+                return new QueueService(connectionString, "orders");
+            });
+
+            builder.Services.AddSingleton<AzureFileShareService>(sp =>
+            {
+                var connectionString = builder.Configuration.GetConnectionString("AzureStorage");
+                return new AzureFileShareService(connectionString, "fileshare");
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

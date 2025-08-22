@@ -39,6 +39,7 @@ namespace ABCRetail.Controllers
             {
                 products.PartitionKey = "ProductsPartition";
                 products.RowKey = Guid.NewGuid().ToString();
+                products.Product_ID = $"PROD-{Guid.NewGuid().ToString().Substring(0, 8)}";
                 await _tableStorageService.AddProductAsync(products);
                 return RedirectToAction("Index");
             }
@@ -57,6 +58,48 @@ namespace ABCRetail.Controllers
             await _tableStorageService.DeleteProductAsync(partitionKey, rowKey);
 
             return RedirectToAction("Index");
+        }
+        [HttpGet]
+        public async Task<IActionResult> Edit(string partitionKey, string rowKey)
+        {
+            if (string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey))
+            {
+                return NotFound();
+            }
+
+            var product = await _tableStorageService.GetProductAsync(partitionKey, rowKey);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View(product);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(Product product, IFormFile? file)
+        {
+            if (ModelState.IsValid)
+            {
+                // If a new file was uploaded, replace the old one
+                if (file != null)
+                {
+                    // delete old blob if exists
+                    if (!string.IsNullOrEmpty(product.ImageURL))
+                    {
+                        await _blobService.DeleteBlobAsync(product.ImageURL);
+                    }
+
+                    using var stream = file.OpenReadStream();
+                    var imageUrl = await _blobService.UploadsAsync(stream, file.FileName);
+                    product.ImageURL = imageUrl;
+                }
+
+                await _tableStorageService.UpdateProductAsync(product);
+                return RedirectToAction("Index");
+            }
+
+            return View(product);
         }
     }
 }

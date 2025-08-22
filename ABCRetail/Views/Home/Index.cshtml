@@ -25,7 +25,10 @@
                     <div class="card-body text-center">
                         <h5 class="card-title fw-bold">@product.Product_Name</h5>
                         <p class="card-text text-muted">@product.Description</p>
-                        <a href="#" class="btn btn-outline-primary"><i class="bi bi-cart-plus"></i> Add to Cart</a>
+                        <a asp-action="PlaceOrder" asp-controller="Orders" asp-route-id="@product.Product_ID" class="btn btn-outline-primary" class="bi bi-cart-plus">
+                            Place Order
+                        </a>
+                         
                     </div>
                 </div>
             </div>

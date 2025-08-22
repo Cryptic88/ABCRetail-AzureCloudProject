@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Place Order";
+    var customers = ViewBag.Customers as List<ABCRetail.Models.Customer>;
+    var products = ViewBag.Products as List<ABCRetail.Models.Product>;
+}
+
+<div class="container my-4">
+    <h2 class="mb-4 text-primary">Place Order</h2>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <form asp-action="PlaceOrder" method="post" class="card p-4 shadow-sm">
+        <div class="mb-3">
+            <label for="customerId" class="form-label">Customer</label>
+            <select id="customerId" name="customerId" class="form-select" required>
+                <option value="">-- Select Customer --</option>
+                @foreach (var customer in customers)
+                {
+                    <option value="@customer.Customer_Id">@customer.Customer_Name (@customer.Customer_Id)</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="productId" class="form-label">Product</label>
+            <select id="productId" name="productId" class="form-select" required>
+                <option value="">-- Select Product --</option>
+                @foreach (var product in products)
+                {
+                    <option value="@product.Product_ID">@product.Product_Name (@product.Product_ID)</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="quantity" class="form-label">Quantity</label>
+            <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1" required />
+        </div>
+
+        <div class="d-flex">
+            <button type="submit" class="btn btn-primary me-2">
+                <i class="bi bi-cart-plus"></i> Place Order
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">Back to Orders</a>
+        </div>
+    </form>
+</div>
