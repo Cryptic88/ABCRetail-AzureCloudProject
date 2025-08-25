@@ -21,19 +21,18 @@
                 <!-- Search Form -->
                 <form asp-action="Index" method="get" class="d-flex gap-2 flex-grow-1 flex-md-auto">
                     <input type="text" name="searchString" class="form-control shadow-sm" style="height: 50px; border-radius: 50px;"
-                           value="@ViewBag.SearchString" placeholder="Search by name or location" />
+                           value="@ViewBag.SearchString" placeholder="Search by name" />
                     <button type="submit" class="btn btn-primary shadow-sm search-btn rounded-pill w-80">
                         <i class="bi bi-search me-2"></i> Search
                     </button>
                     @if (!string.IsNullOrEmpty(ViewBag.SearchString as string))
                     {
-                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary shadow-sm" style="height: 50px; border-radius: 50px;">
-                            <i class="bi bi-x-circle"></i> Clear
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary shadow-sm d-flex justify-content-center align-items-center"
+                           style="height: 50px; border-radius: 50px;">
+                            <i class="bi bi-x-circle me-2"></i> Clear
                         </a>
                     }
                 </form>
-
-                <!-- Add Product Button -->
                 <a asp-action="AddProduct" class="btn btn-success shadow-sm add-product-btn btn-lg">
                     <i class="bi bi-plus-circle me-2"></i> Add New Product
                 </a>
@@ -63,10 +62,10 @@
                     <a asp-action="Edit" asp-route-partitionKey="@product.PartitionKey" asp-route-rowKey="@product.RowKey" class="btn btn-sm btn-primary">
                         <i class="bi bi-pencil"></i> Edit
                     </a>
-                    <a asp-action="Details" asp-route-id="@product.Product_ID" class="btn btn-sm btn-info" title="Details">
+                    <a asp-action="Details" asp-route-partitionKey="@product.PartitionKey" asp-route-rowKey="@product.RowKey" class="btn btn-info btn-sm">
                         <i class="bi bi-eye"></i> Details
                     </a>
-                        <form asp-action="DeleteProduct" method="post" style="display:inline;">
+                        <form asp-action="DeleteProduct" method="post" style="display:inline">
                             <input type="hidden" name="partitionKey" value="@product.PartitionKey" />
                             <input type="hidden" name="rowKey" value="@product.RowKey" />
                             <input type="hidden" name="products.ImageURL" value="@product.ImageURL" />
@@ -79,4 +78,5 @@
             </div>
         </div>
     }
+</div>
 </div>

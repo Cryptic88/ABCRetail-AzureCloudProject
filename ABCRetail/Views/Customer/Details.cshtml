@@ -1,0 +1,55 @@
+﻿@model ABCRetail.Models.Customer
+
+@{
+    ViewData["Title"] = "Customer Details";
+}
+
+
+<div class="page-bg d-flex justify-content-center align-items-center">
+
+    <div class="card shadow-lg rounded-4 p-4 position-relative" style="background-color: rgba(255,255,255,0.95); max-width: 600px; width: 100%;">
+
+
+        <div class="text-center mb-4">
+            <h2 class="fw-bold"><i class="bi bi-person-circle text-primary"></i> Customer Details</h2>
+            <p class="text-muted">View detailed information for this customer.</p>
+        </div>
+
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <i class="bi bi-hash text-primary me-2"></i>
+                    <strong>Customer ID:</strong> @Model.Customer_Id
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-person-fill text-primary me-2"></i>
+                    <strong>Name:</strong> @Model.Customer_Name
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-envelope-fill text-primary me-2"></i>
+                    <strong>Email:</strong> @Model.email
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-key-fill text-danger me-2"></i>
+                    <strong>Password:</strong> <span class="text-danger fw-bold">@Model.password</span>
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-calendar-check-fill text-primary me-2"></i>
+                    <strong>Created:</strong> @Model.Timestamp?.ToLocalTime().ToString("g")
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+            <a asp-action="Edit" asp-route-partitionKey="@Model.PartitionKey" asp-route-rowKey="@Model.RowKey" class="btn btn-warning">
+                <i class="bi bi-pencil-square"></i> Edit
+            </a>
+        </div>
+
+    </div>
+    <!-- End Card -->
+
+</div>

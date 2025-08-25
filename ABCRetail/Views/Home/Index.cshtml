@@ -18,18 +18,29 @@
     <div class="row g-4">
         @foreach (var product in Model)
         {
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border-0">
-                    <img src="@(!string.IsNullOrEmpty(product.ImageURL) ? product.ImageURL : "/images/placeholder.jpg")" 
-                    class="card-img-top" alt="@product.Product_Name">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fw-bold">@product.Product_Name</h5>
-                        <p class="card-text text-muted">@product.Description</p>
-                        <a asp-action="PlaceOrder" asp-controller="Orders" asp-route-id="@product.Product_ID" class="btn btn-outline-primary" class="bi bi-cart-plus">
-                            Place Order
-                        </a>
-                         
-                    </div>
+            <div class="col-md-4 d-flex">
+                <div class="card shadow-sm border-0 product-card flex-fill d-flex flex-column">
+                    <a asp-controller="Product" asp-action="Details"
+                       asp-route-partitionKey="@product.PartitionKey"
+                       asp-route-rowKey="@product.RowKey"
+                       class="text-decoration-none text-dark flex-grow-1">
+
+                        <img src="@(!string.IsNullOrEmpty(product.ImageURL) ? product.ImageURL : "/images/placeholder.jpg")"
+                             class="card-img-top" alt="@product.Product_Name"
+                             style="height:220px; object-fit:cover;">
+
+                        <div class="card-body d-flex flex-column justify-content-between text-center">
+                            <div>
+                                <h5 class="card-title fw-bold">@product.Product_Name</h5>
+                                <p class="card-text text-muted">@product.Description</p>
+                            </div>
+
+                            <a asp-action="PlaceOrder" asp-controller="Orders" asp-route-id="@product.Product_ID"
+                               class="btn btn-outline-primary mt-2 w-100">
+                                <i class="bi bi-cart-plus"></i> Place Order
+                            </a>
+                        </div>
+                    </a>
                 </div>
             </div>
         }

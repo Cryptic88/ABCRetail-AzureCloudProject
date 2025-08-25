@@ -1,0 +1,60 @@
+﻿@model ABCRetail.Models.Product
+
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+
+<div class="page-bg d-flex justify-content-center align-items-center">
+
+    <div class="card shadow-lg rounded-4 p-4 position-relative" style="background-color: rgba(255,255,255,0.95); max-width: 600px; width: 100%;">
+
+        <div class="text-center mb-4">
+            <h2 class="fw-bold"><i class="bi bi-box-seam text-primary"></i> Product Details</h2>
+            <p class="text-muted">View detailed information for this product.</p>
+        </div>
+
+        <div class="card-body">
+            <ul class="list-group list-group-flush mb-3">
+                <li class="list-group-item">
+                    <i class="bi bi-hash text-primary me-2"></i>
+                    <strong>Product ID:</strong> @Model.Product_ID
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-tag-fill text-primary me-2"></i>
+                    <strong>Name:</strong> @Model.Product_Name
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-card-text text-primary me-2"></i>
+                    <strong>Description:</strong> @Model.Description
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-currency-dollar text-primary me-2"></i>
+                    <strong>Price:</strong> @Model.Price?.ToString("C0")
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-image text-primary me-2"></i>
+                    <strong>Image:</strong><br />
+                    @if (!string.IsNullOrEmpty(Model.ImageURL))
+                    {
+                        <img src="@Model.ImageURL" alt="@Model.Product_Name" class="img-fluid rounded mt-2" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">No image uploaded</span>
+                    }
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+            <a asp-action="Edit" asp-route-partitionKey="@Model.PartitionKey" asp-route-rowKey="@Model.RowKey" class="btn btn-warning">
+                <i class="bi bi-pencil-square"></i> Edit
+            </a>
+        </div>
+
+    </div>
+</div>

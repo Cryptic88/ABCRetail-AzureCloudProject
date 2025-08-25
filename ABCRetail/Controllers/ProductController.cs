@@ -14,9 +14,20 @@ namespace ABCRetail.Controllers
             _blobService = blobService;
             _tableStorageService = tableStorageService;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
             var products = await _tableStorageService.GetAllProductsAsync();
+
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                products = products
+                    .Where(p => !string.IsNullOrEmpty(p.Product_Name) &&
+                                p.Product_Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            ViewBag.SearchString = searchString ?? "";
+
             return View(products);
         }
 
@@ -98,6 +109,19 @@ namespace ABCRetail.Controllers
                 await _tableStorageService.UpdateProductAsync(product);
                 return RedirectToAction("Index");
             }
+
+            return View(product);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(string partitionKey, string rowKey)
+        {
+            if (string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey))
+                return NotFound();
+
+            var product = await _tableStorageService.GetProductAsync(partitionKey, rowKey);
+            if (product == null)
+                return NotFound();
 
             return View(product);
         }

@@ -42,6 +42,34 @@ namespace ABCRetail.Services
                 throw new InvalidOperationException("Failed to add the birder. Ensure that PartitionKey and RowKey are unique and valid.", ex);
             }
         }
+        public async Task<Customer?> GetCustomerAsync(string partitionKey, string rowKey)
+        {
+            try
+            {
+                var response = await _customerTableClient.GetEntityAsync<Customer>(partitionKey, rowKey);
+                return response.Value;
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                return null;
+            }
+        }
+
+        public async Task UpdateCustomerAsync(Customer customer)
+        {
+            if (string.IsNullOrEmpty(customer.PartitionKey) || string.IsNullOrEmpty(customer.RowKey))
+                throw new ArgumentException("PartitionKey and RowKey must be set for the entity.");
+
+            try
+            {
+                // Used Replace to overwrite the entity with new data
+                await _customerTableClient.UpdateEntityAsync(customer, ETag.All, TableUpdateMode.Replace);
+            }
+            catch (RequestFailedException ex)
+            {
+                throw new InvalidOperationException("Failed to update the customer in table storage.", ex);
+            }
+        }
 
         public async Task<List<Product>> GetAllProductsAsync()
         {

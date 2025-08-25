@@ -35,6 +35,55 @@ namespace ABCRetail.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Details(string partitionKey, string rowKey)
+        {
+            if (partitionKey == null || rowKey == null) return NotFound();
+
+            var customer = await _tableStorageService.GetCustomerAsync(partitionKey, rowKey);
+            if (customer == null) return NotFound();
+
+            return View(customer);
+        }
+
+        
+        [HttpGet]
+        public async Task<IActionResult> Edit(string partitionKey, string rowKey)
+        {
+            if (partitionKey == null || rowKey == null) return NotFound();
+
+            var customer = await _tableStorageService.GetCustomerAsync(partitionKey, rowKey);
+            if (customer == null) return NotFound();
+
+            return View(customer);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Customer updatedCustomer)
+        {
+            if (!ModelState.IsValid)
+                return View(updatedCustomer);
+
+            // Gets the existing customer
+            var existing = await _tableStorageService.GetCustomerAsync(updatedCustomer.PartitionKey, updatedCustomer.RowKey);
+            if (existing == null) return NotFound();
+
+            // Updates fields (keeps password if not changed)
+            existing.Customer_Name = updatedCustomer.Customer_Name;
+            existing.email = updatedCustomer.email;
+            if (!string.IsNullOrWhiteSpace(updatedCustomer.password))
+            {
+                existing.password = updatedCustomer.password; // replaces password only if user entered one
+            }
+
+            await _tableStorageService.UpdateCustomerAsync(existing);
+
+            TempData["Success"] = "Customer updated successfully!";
+            return RedirectToAction(nameof(Index));
+        }
+
         [HttpPost]
         public async Task<IActionResult> DeleteCustomer(string partitionKey, string rowKey)
         {

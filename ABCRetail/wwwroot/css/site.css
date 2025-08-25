@@ -103,6 +103,12 @@ body {
         transform: rotate(20deg);
     }
 
+.page-bg {
+    background: url('https://st10439009.blob.core.windows.net/products/ABCRetail_bg_views.jpg') no-repeat center center fixed;
+    background-size: cover;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
 .search-btn {
     height: 50px; 
     min-width: 120px; 
