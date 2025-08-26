@@ -18,12 +18,11 @@ namespace ABCRetail.Controllers
         {
             var products = await _tableStorageService.GetAllProductsAsync();
 
+            //Add on for a search function just to make it easier to find products
             if (!string.IsNullOrWhiteSpace(searchString))
             {
-                products = products
-                    .Where(p => !string.IsNullOrEmpty(p.Product_Name) &&
-                                p.Product_Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                products = products.Where(p => !string.IsNullOrEmpty(p.Product_Name) &&
+                                p.Product_Name.Contains(searchString, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
             ViewBag.SearchString = searchString ?? "";
@@ -50,7 +49,7 @@ namespace ABCRetail.Controllers
             {
                 products.PartitionKey = "ProductsPartition";
                 products.RowKey = Guid.NewGuid().ToString();
-                products.Product_ID = $"PROD-{Guid.NewGuid().ToString().Substring(0, 8)}";
+                products.Product_ID = $"PROD-{Guid.NewGuid().ToString().Substring(0, 8)}";//(stackoverflow, 2020) //Custom product ID format
                 await _tableStorageService.AddProductAsync(products);
                 return RedirectToAction("Index");
             }
@@ -127,3 +126,7 @@ namespace ABCRetail.Controllers
         }
     }
 }
+/*Refrence List:
+ stackoverflow, 2020. Is there any way to get the first 5 characters of a GUID?. [online] Available at:
+ https://stackoverflow.com/questions/61124190/is-there-any-way-to-get-the-first-5-characters-of-a-guid
+ [Accessed 15 August 2025].*/

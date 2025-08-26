@@ -19,12 +19,12 @@ namespace ABCRetail.Services
         }
         public async Task<List<Customer>> GetAllCustomerAsync()
         {
-            var birders = new List<Customer>();
+            var customers = new List<Customer>();
             await foreach (var customer in _customerTableClient.QueryAsync<Customer>())
             {
-                birders.Add(customer);
+                customers.Add(customer);
             }
-            return birders;
+            return customers;
         }
         public async Task AddCustomerAsync(Customer customer)
         {

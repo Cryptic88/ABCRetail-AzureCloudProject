@@ -23,7 +23,7 @@ namespace ABCRetail.Controllers
         {
             customer.PartitionKey = "CustomersPartition";
             customer.RowKey = Guid.NewGuid().ToString();
-            customer.Customer_Id = Math.Abs(Guid.NewGuid().GetHashCode());
+            customer.Customer_Id = Math.Abs(Guid.NewGuid().GetHashCode()); //(stackoverflow, 2017)
 
             await _tableStorageService.AddCustomerAsync(customer);
             return RedirectToAction("Index");
@@ -100,3 +100,9 @@ namespace ABCRetail.Controllers
         }
     }
 }
+/*Refrence List:
+ stackoverflow, 2017. How to use Guid without alphabet (selenium c#). [online] Available at:
+ https://stackoverflow.com/questions/47473815/how-to-use-guid-without-alphabet-selenium-c
+ [Accessed 15 August 2025].
+
+*/

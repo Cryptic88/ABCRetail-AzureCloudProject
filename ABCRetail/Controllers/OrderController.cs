@@ -1,6 +1,8 @@
-﻿using ABCRetail.Models;
+﻿using System.Reflection;
+using ABCRetail.Models;
 using ABCRetail.Services;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Packaging.Signing;
 
 namespace ABCRetail.Controllers
 {
@@ -68,15 +70,15 @@ namespace ABCRetail.Controllers
 
             await _tableStorageService.AddOrderAsync(order);
 
-            // Send descriptive messages to the Azure Queue
-            await _queueService.SendMessageAsync($"Order Placed: Order_ID={order.Order_ID}, Customer_ID={order.Customer_Id}, Product_ID={order.Product_ID}, Quantity={order.Quantity}");
-            await _queueService.SendMessageAsync($"Processing Order: Order_ID={order.Order_ID}");
+            // Sending custom messages to the Azure Queue
+            await _queueService.SendMessageAsync($"Order Placed: Order ID={order.Order_ID}, Customer ID={order.Customer_Id}, Product ID={order.Product_ID}, Quantity={order.Quantity}");
+            await _queueService.SendMessageAsync($"Processing Order: Order ID={order.Order_ID}");
 
             // If the product has an image, send an image upload message
             var product = await _tableStorageService.GetProductAsync("ProductsPartition", productId);
             if (product != null && !string.IsNullOrEmpty(product.ImageURL))
             {
-                await _queueService.SendMessageAsync($"Image Uploaded: {product.ImageURL} for Order_ID={order.Order_ID}");
+                await _queueService.SendMessageAsync($"Image Uploaded: {product.ImageURL} for Order ID={order.Order_ID}");
             }
 
             await _tableStorageService.AddOrderAsync(order);
@@ -88,6 +90,8 @@ namespace ABCRetail.Controllers
             return RedirectToAction("Index");
         }
 
+        //Simulates order processing by getting the next message from the queue and then updates the order status in Table Storage
+        //This simulates the delivery process
         [HttpPost]
         public async Task<IActionResult> ProcessOrder()
         {

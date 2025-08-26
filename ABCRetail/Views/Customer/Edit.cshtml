@@ -23,21 +23,26 @@
 
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label asp-for="Customer_Name" class="form-label fw-semibold"></label>
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-person-fill text-primary me-2"></i> Full Name
+                                </label>
                                 <input asp-for="Customer_Name" class="form-control" placeholder="Enter customer name" />
                                 <span asp-validation-for="Customer_Name" class="text-danger small"></span>
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="email" class="form-label fw-semibold"></label>
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-envelope-fill text-primary me-2"></i> Email
+                                </label>
                                 <input asp-for="email" class="form-control" placeholder="Enter email" />
                                 <span asp-validation-for="email" class="text-danger small"></span>
                             </div>
                         </div>
 
                         <div class="mt-4">
-                            <label asp-for="password" class="form-label fw-semibold text-danger"></label>
+                            <label class="form-label fw-semibold text-danger">
+                                <i class="bi bi-key-fill me-2"></i> Password
+                            </label>
                             <input asp-for="password" type="password" class="form-control" placeholder="Leave blank to keep current password" />
-
                             <span asp-validation-for="password" class="text-danger small"></span>
                         </div>
 

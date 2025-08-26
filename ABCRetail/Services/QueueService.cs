@@ -17,6 +17,7 @@ namespace ABCRetail.Services
             await _queueClient.SendMessageAsync(message);
         }
 
+        //Used for custom message structure
         public async Task SendOrderMessageAsync(Order order)
         {
 
@@ -35,7 +36,7 @@ namespace ABCRetail.Services
             string text = message.MessageText;
 
 
-            string prefix = "Order_ID=";
+            string prefix = "Order ID=";
             int startIndex = text.IndexOf(prefix);
             if (startIndex == -1)
             {

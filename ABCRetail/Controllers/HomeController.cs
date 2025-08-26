@@ -17,7 +17,7 @@ namespace ABCRetail.Controllers
             _tableStorageService = tableStorageService;
         }
 
-        public async Task<IActionResult> IndexAsync()
+        public async Task<IActionResult> IndexAsync() //Helps display featured products on the home page
         {
             var allProducts = await _tableStorageService.GetAllProductsAsync();
 
