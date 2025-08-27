@@ -21,7 +21,8 @@ body {
   margin-bottom: 60px;
 }
 
-.navbar {
+/*(GeeksforGeeks, 2024)*/
+.navbar { 
     background-color: #0d6efd; 
 }
 
@@ -33,7 +34,7 @@ body {
             color: #ffdd57 !important;
         }
 
-
+/*(Selbekk, 2020)*/
 .hero-section {
     position: relative;
     width: 100%;
@@ -65,6 +66,7 @@ body {
         font-size: 1.25rem;
     }
 
+/*(W3schools, 2025)*/
 .card:hover {
     transform: scale(1.03);
     transition: 0.3s ease-in-out;
@@ -82,6 +84,7 @@ body {
     }
 }
 
+/*(W3schools, 2025b)*/
 .add-product-btn {
     background: linear-gradient(135deg, #28a745, #20c997);
     border: none;
@@ -109,6 +112,8 @@ body {
     padding-top: 40px;
     padding-bottom: 40px;
 }
+
+/*(W3schools, 2025b)*/
 .search-btn {
     height: 50px; 
     min-width: 120px; 
@@ -122,3 +127,21 @@ body {
         box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         background-color: #0b5ed7; 
     }
+
+/*Refrence List:
+  GeeksforGeeks, 2024. How to Change Navigation Bar Color in Bootstrap?. [online] Available at:
+  https://www.geeksforgeeks.org/bootstrap/how-to-change-navigation-bar-color-in-bootstrap/
+  [Accessed 15 August 2025].
+
+  Selbekk, 2020. How to overlay your background images. [online] Available at:
+  https://dev.to/selbekk/how-to-overlay-your-background-images-59le
+  [Accessed 15 August 2025].
+
+  W3schools, 2025. How TO - Cards. [online] Available at:
+  https://www.w3schools.com/howto/howto_css_cards.asp
+  [Accessed 15 August 2025].
+
+  W3schools, 2025. CSS Styling Buttons. [online] Available at:
+  https://www.w3schools.com/css/css3_buttons.asp
+  [Accessed 15 August 2025].
+*/

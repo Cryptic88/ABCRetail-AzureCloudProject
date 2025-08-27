@@ -43,6 +43,7 @@
 <div class="row row-cols-1 row-cols-md-3 g-4">
     @foreach (var product in Model)
     {
+        <!-- (W3shcools, 2019) -->
         <div class="col">
             <div class="card h-100 shadow-sm">
                 @if (!string.IsNullOrEmpty(product.ImageURL))
@@ -80,3 +81,9 @@
     }
 </div>
 </div>
+<!--Refrence List:
+
+    W3shcools, 2019. How to display a list of items in the shape of bootstrap cards class. [online] Available at:
+    https://stackoverflow.com/questions/55403385/how-to-display-a-list-of-items-in-the-shape-of-bootstrap-cards-class/55403760
+    [Accessed 15 August 2025].
+-->
