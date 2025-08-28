@@ -58,15 +58,15 @@ namespace ABCRetail.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteProduct(string partitionKey, string rowKey, Product products)
+        public async Task<IActionResult> DeleteProduct(string partitionKey, string rowKey)
         {
-            if (products != null && !string.IsNullOrEmpty(products.ImageURL))
+            var product = await _tableStorageService.GetProductAsync(partitionKey, rowKey);
+            if (product != null && !string.IsNullOrEmpty(product.ImageURL))
             {
-                await _blobService.DeleteBlobAsync(products.ImageURL);
+                await _blobService.DeleteBlobAsync(product.ImageURL);
             }
 
             await _tableStorageService.DeleteProductAsync(partitionKey, rowKey);
-
             return RedirectToAction("Index");
         }
         [HttpGet]
