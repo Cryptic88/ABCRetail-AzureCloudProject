@@ -67,6 +67,7 @@
                         <i class="bi bi-eye"></i> Details
                     </a>
                         <form asp-action="DeleteProduct" method="post" style="display:inline">
+                            <input type="hidden" name="products.ImageURL" value="@product.ImageURL" />
                             <input type="hidden" name="partitionKey" value="@product.PartitionKey" />
                             <input type="hidden" name="rowKey" value="@product.RowKey" />
                             <button type="submit" class="btn btn-sm btn-danger"
