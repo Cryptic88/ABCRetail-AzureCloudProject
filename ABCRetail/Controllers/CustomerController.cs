@@ -12,9 +12,17 @@ namespace ABCRetail.Controllers
         {
             _tableStorageService = tableStorageService;
         }
-        public async Task<IActionResult> IndexAsync()
+        public async Task<IActionResult> IndexAsync(string searchString)
         {
             var customer = await _tableStorageService.GetAllCustomerAsync();
+            //Add on for a search function just to make it easier to find products
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                customer = customer.Where(c => !string.IsNullOrEmpty(c.Customer_Name) &&
+                                c.Customer_Name.Contains(searchString, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            ViewBag.SearchString = searchString ?? "";
             return View(customer);
         }
 

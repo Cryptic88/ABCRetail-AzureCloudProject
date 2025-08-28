@@ -93,26 +93,33 @@ namespace ABCRetail.Controllers
         //Simulates order processing by getting the next message from the queue and then updates the order status in Table Storage
         //This simulates the delivery process
         [HttpPost]
-        public async Task<IActionResult> ProcessOrder()
+        public async Task<IActionResult> ProcessOrder(string orderId)
         {
-            var orderMessage = await _queueService.ReceiveOrderMessageAsync();
-            if (orderMessage != null)
+            var existingOrder = await _tableStorageService.GetOrderByOrderIdAsync(orderId);
+            if (existingOrder != null)
             {
-                var existingOrder = await _tableStorageService.GetOrderByOrderIdAsync(orderMessage.Order_ID);
-                if (existingOrder != null)
+                switch (existingOrder.Status)
                 {
-                    existingOrder.Status = "Processed";
-                    await _tableStorageService.UpdateOrderAsync(existingOrder);
-                    TempData["Message"] = "Order processed successfully.";
+                    case "Pending":
+                        existingOrder.Status = "Packaged";
+                        break;
+                    case "Packaged":
+                        existingOrder.Status = "Out for Delivery";
+                        break;
+                    case "Out for Delivery":
+                        existingOrder.Status = "Completed";
+                        break;
+                    default:
+                        TempData["Error"] = "Order is already completed.";
+                        return RedirectToAction("Index");
                 }
-                else
-                {
-                    TempData["Error"] = "Order not found in Table Storage.";
-                }
+
+                await _tableStorageService.UpdateOrderAsync(existingOrder);
+                TempData["Message"] = $"Order {orderId} updated to {existingOrder.Status}.";
             }
             else
             {
-                TempData["Error"] = "No pending orders in the queue.";
+                TempData["Error"] = "Order not found.";
             }
 
             return RedirectToAction("Index");
