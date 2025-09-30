@@ -6,15 +6,15 @@ namespace ABCRetail.Controllers
 {
     public class CustomerController : Controller
     {
-        private readonly TableStorageService _tableStorageService;
+        private readonly TableStorageFunctionService _tableStorageService;
 
-        public CustomerController(TableStorageService tableStorageService)
+        public CustomerController(TableStorageFunctionService tableStorageService)
         {
             _tableStorageService = tableStorageService;
         }
         public async Task<IActionResult> IndexAsync(string searchString)
         {
-            var customer = await _tableStorageService.GetAllCustomerAsync();
+            var customer = await _tableStorageService.GetAllCustomersAsync();
             //Add on for a search function just to make it easier to find products
             if (!string.IsNullOrWhiteSpace(searchString))
             {
@@ -29,11 +29,26 @@ namespace ABCRetail.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCustomer(Customer customer)
         {
+            if (string.IsNullOrWhiteSpace(customer.Customer_Name))
+            {
+                TempData["Error"] = "Please enter a full name.";
+                return View(customer);
+            }
             customer.PartitionKey = "CustomersPartition";
             customer.RowKey = Guid.NewGuid().ToString();
-            customer.Customer_Id = Math.Abs(Guid.NewGuid().GetHashCode()); //(stackoverflow, 2017)
+            customer.Customer_Id = Guid.NewGuid().ToString("N").Substring(0, 8);
 
-            await _tableStorageService.AddCustomerAsync(customer);
+            var success = await _tableStorageService.StoreCustomerAsync(customer);
+
+            if (success)
+            {
+                TempData["Success"] = "Customer added successfully!";
+            }
+            else
+            {
+                TempData["Error"] = "Failed to add customer.";
+            }
+
             return RedirectToAction("Index");
         }
 

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Azure;
 using Azure.Data.Tables;
 
@@ -16,6 +17,7 @@ namespace ABCRetail.Models
         public string? PartitionKey { get; set; }
         public string? RowKey { get; set; }
         public DateTimeOffset? Timestamp { get; set; }
+        [JsonIgnore]
         public ETag ETag { get; set; }
     }
 }

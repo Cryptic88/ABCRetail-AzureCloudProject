@@ -9,9 +9,9 @@ namespace ABCRetail.Controllers
     public class OrderController : Controller
     {
         private readonly QueueService _queueService;
-        private readonly TableStorageService _tableStorageService;
+        private readonly TableStorageFunctionService _tableStorageService;
 
-        public OrderController(QueueService queueService, TableStorageService tableStorageService)
+        public OrderController(QueueService queueService, TableStorageFunctionService tableStorageService)
         {
             _queueService = queueService;
             _tableStorageService = tableStorageService;
@@ -19,7 +19,7 @@ namespace ABCRetail.Controllers
         public async Task<IActionResult> Index()
         {
             var orders = await _tableStorageService.GetAllOrdersAsync();
-            var customers = await _tableStorageService.GetAllCustomerAsync();
+            var customers = await _tableStorageService.GetAllCustomersAsync();
             var products = await _tableStorageService.GetAllProductsAsync();
 
             ViewBag.Customers = customers.ToDictionary(c => c.Customer_Id.ToString(), c => c.Customer_Name);
@@ -31,7 +31,7 @@ namespace ABCRetail.Controllers
         [HttpGet]
         public async Task<IActionResult> PlaceOrder()
         {
-            var customers = await _tableStorageService.GetAllCustomerAsync();
+            var customers = await _tableStorageService.GetAllCustomersAsync();
             var products = await _tableStorageService.GetAllProductsAsync();
 
             ViewBag.Customers = customers;
@@ -47,7 +47,7 @@ namespace ABCRetail.Controllers
             {
                 TempData["Error"] = "Please select a customer, a product, and enter a valid quantity.";
 
-                var customers = await _tableStorageService.GetAllCustomerAsync();
+                var customers = await _tableStorageService.GetAllCustomersAsync();
                 var products = await _tableStorageService.GetAllProductsAsync();
                 ViewBag.Customers = customers;
                 ViewBag.Products = products;

@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36121.58 d17.14
+VisualStudioVersion = 17.14.36121.58
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ABCRetail", "ABCRetail\ABCRetail.csproj", "{51D78ED0-2196-4508-9AD6-DD184074F347}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoreToTableFunction", "StoreToTableFunction\StoreToTableFunction.csproj", "{1D97581F-C6A7-422B-9AF0-C65BD6204DBB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{51D78ED0-2196-4508-9AD6-DD184074F347}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51D78ED0-2196-4508-9AD6-DD184074F347}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51D78ED0-2196-4508-9AD6-DD184074F347}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D97581F-C6A7-422B-9AF0-C65BD6204DBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D97581F-C6A7-422B-9AF0-C65BD6204DBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D97581F-C6A7-422B-9AF0-C65BD6204DBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D97581F-C6A7-422B-9AF0-C65BD6204DBB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

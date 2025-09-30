@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Azure.Data.Tables;
+using Newtonsoft.Json;
 
 namespace ABCRetail.Models
 {
@@ -15,6 +16,8 @@ namespace ABCRetail.Models
         public string? PartitionKey { get; set; }
         public string? RowKey { get; set; }
         public DateTimeOffset? Timestamp { get; set; }
+        
+        [JsonIgnore]
         public ETag ETag { get; set; }
     }
 }

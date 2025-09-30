@@ -12,8 +12,19 @@ namespace ABCRetail
             builder.Services.AddControllersWithViews();
 
             //Table storage
-            var connectionString = builder.Configuration.GetConnectionString("AzureStorage");
-            builder.Services.AddSingleton(new TableStorageService(connectionString));
+            // Table storage HTTP client
+            builder.Services.AddHttpClient<TableStorageFunctionService>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:7152/api"); // Local function host URL
+            });
+
+            // Register TableStorageFunctionService as a singleton
+            builder.Services.AddSingleton<TableStorageFunctionService>(sp =>
+            {
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var httpClient = httpClientFactory.CreateClient(nameof(TableStorageFunctionService));
+                return new TableStorageFunctionService(httpClient, "http://localhost:7152/api");
+            });
 
             //Blob storage
             var connectionString2 = builder.Configuration.GetConnectionString("AzureStorage");
@@ -30,6 +41,8 @@ namespace ABCRetail
                 var connectionString = builder.Configuration.GetConnectionString("AzureStorage");
                 return new AzureFileShareService(connectionString, "fileshare");
             });
+
+
 
             var app = builder.Build();
 

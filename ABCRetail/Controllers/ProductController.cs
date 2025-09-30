@@ -7,9 +7,9 @@ namespace ABCRetail.Controllers
     public class ProductController : Controller
     {
         private readonly BlobService _blobService;
-        private readonly TableStorageService _tableStorageService;
+        private readonly TableStorageFunctionService _tableStorageService;
 
-        public ProductController(BlobService blobService, TableStorageService tableStorageService)
+        public ProductController(BlobService blobService, TableStorageFunctionService tableStorageService)
         {
             _blobService = blobService;
             _tableStorageService = tableStorageService;
@@ -50,7 +50,7 @@ namespace ABCRetail.Controllers
                 products.PartitionKey = "ProductsPartition";
                 products.RowKey = Guid.NewGuid().ToString();
                 products.Product_ID = $"PROD-{Guid.NewGuid().ToString().Substring(0, 8)}";//(stackoverflow, 2020) //Custom product ID format
-                await _tableStorageService.AddProductAsync(products);
+                await _tableStorageService.StoreProductAsync(products);
                 return RedirectToAction("Index");
             }
 

@@ -8,10 +8,10 @@ namespace ABCRetail.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly TableStorageService _tableStorageService;
+        private readonly TableStorageFunctionService _tableStorageService;
 
 
-        public HomeController(ILogger<HomeController> logger, TableStorageService tableStorageService)
+        public HomeController(ILogger<HomeController> logger, TableStorageFunctionService tableStorageService)
         {
             _logger = logger;
             _tableStorageService = tableStorageService;
