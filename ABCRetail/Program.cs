@@ -26,9 +26,20 @@ namespace ABCRetail
                 return new TableStorageFunctionService(httpClient, "http://localhost:7152/api");
             });
 
-            //Blob storage
-            var connectionString2 = builder.Configuration.GetConnectionString("AzureStorage");
-            builder.Services.AddSingleton(new BlobService(connectionString2));
+            // Blob storage via Azure Functions
+            builder.Services.AddHttpClient<BlobFunctionService>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:7135/api"); // URL of your local Functions host
+            });
+
+            // Register BlobFunctionService as a singleton
+            builder.Services.AddSingleton<BlobFunctionService>(sp =>
+            {
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var httpClient = httpClientFactory.CreateClient(nameof(BlobFunctionService));
+                return new BlobFunctionService(httpClient, "http://localhost:7135/api"); // Function App URL
+            });
+
 
             builder.Services.AddSingleton<QueueService>(sp =>
             {

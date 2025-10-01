@@ -59,11 +59,17 @@ namespace ABCRetail.Services
             var response = await _httpClient.PostAsJsonAsync($"{_baseFunctionUrl}/product", product);
             return response.IsSuccessStatusCode;
         }
-
         public async Task<List<Product>> GetAllProductsAsync()
         {
-            var products = await _httpClient.GetFromJsonAsync<List<Product>>($"{_baseFunctionUrl}/product");
-            return products ?? new List<Product>();
+            var products = await _httpClient.GetFromJsonAsync<List<Product>>($"{_baseFunctionUrl}/product")
+                           ?? new List<Product>();
+
+            foreach (var p in products)
+            {
+                Console.WriteLine($"Product {p.Product_Name}, ImageURL: {p.ImageURL}");
+            }
+
+            return products;
         }
 
         public async Task<Product?> GetProductAsync(string partitionKey, string rowKey)

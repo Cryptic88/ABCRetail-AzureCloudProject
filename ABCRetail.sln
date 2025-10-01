@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ABCRetail", "ABCRetail\ABCR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoreToTableFunction", "StoreToTableFunction\StoreToTableFunction.csproj", "{1D97581F-C6A7-422B-9AF0-C65BD6204DBB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteToBlobFunction", "WriteToBlobFunction\WriteToBlobFunction.csproj", "{B076A72A-77B1-4C13-B16C-59BF5087B2A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{1D97581F-C6A7-422B-9AF0-C65BD6204DBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D97581F-C6A7-422B-9AF0-C65BD6204DBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D97581F-C6A7-422B-9AF0-C65BD6204DBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B076A72A-77B1-4C13-B16C-59BF5087B2A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B076A72A-77B1-4C13-B16C-59BF5087B2A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B076A72A-77B1-4C13-B16C-59BF5087B2A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B076A72A-77B1-4C13-B16C-59BF5087B2A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

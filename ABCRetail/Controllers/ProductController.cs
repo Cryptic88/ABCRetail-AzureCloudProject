@@ -6,10 +6,10 @@ namespace ABCRetail.Controllers
 {
     public class ProductController : Controller
     {
-        private readonly BlobService _blobService;
+        private readonly BlobFunctionService _blobService;
         private readonly TableStorageFunctionService _tableStorageService;
 
-        public ProductController(BlobService blobService, TableStorageFunctionService tableStorageService)
+        public ProductController(BlobFunctionService blobService, TableStorageFunctionService tableStorageService)
         {
             _blobService = blobService;
             _tableStorageService = tableStorageService;
@@ -35,26 +35,38 @@ namespace ABCRetail.Controllers
         {
             return View();
         }
+
         [HttpPost]
-        public async Task<IActionResult> AddProduct(Product products, IFormFile file)
+        public async Task<IActionResult> AddProduct(Product product, IFormFile file)
         {
+            // Manual validation
+            if (string.IsNullOrWhiteSpace(product.Product_Name) || product.Price <= 0)
+            {
+                TempData["Error"] = "Please provide a valid product name and price.";
+                return View(product);
+            }
+
+            // Ensure Product_ID
+            if (string.IsNullOrEmpty(product.Product_ID))
+                product.Product_ID = $"PROD-{Guid.NewGuid().ToString().Substring(0, 8)}";
+
+            // Handle file upload
             if (file != null)
             {
                 using var stream = file.OpenReadStream();
-                var imageUrl = await _blobService.UploadsAsync(stream, file.FileName);
-                products.ImageURL = imageUrl;
+                var imageUrl = await _blobService.UploadsAsync(stream, file.FileName, product.Product_ID);
+                Console.WriteLine($"Blob URL: {imageUrl}");
+                product.ImageURL = imageUrl;
             }
 
-            if (ModelState.IsValid)
-            {
-                products.PartitionKey = "ProductsPartition";
-                products.RowKey = Guid.NewGuid().ToString();
-                products.Product_ID = $"PROD-{Guid.NewGuid().ToString().Substring(0, 8)}";//(stackoverflow, 2020) //Custom product ID format
-                await _tableStorageService.StoreProductAsync(products);
-                return RedirectToAction("Index");
-            }
+            // Ensure Partition & Row keys are always set
+            product.PartitionKey = "ProductsPartition";
+            product.RowKey = Guid.NewGuid().ToString();
 
-            return View(products);
+            // Store product
+            await _tableStorageService.StoreProductAsync(product);
+
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -91,7 +103,12 @@ namespace ABCRetail.Controllers
         {
             if (ModelState.IsValid)
             {
-                // If a new file was uploaded, replace the old one
+                // Ensure Product_ID is set
+                if (string.IsNullOrEmpty(product.Product_ID))
+                {
+                    product.Product_ID = $"PROD-{Guid.NewGuid().ToString().Substring(0, 8)}";
+                }
+
                 if (file != null)
                 {
                     // delete old blob if exists
@@ -101,7 +118,8 @@ namespace ABCRetail.Controllers
                     }
 
                     using var stream = file.OpenReadStream();
-                    var imageUrl = await _blobService.UploadsAsync(stream, file.FileName);
+                    var imageUrl = await _blobService.UploadsAsync(stream, file.FileName, product.Product_ID);
+                    Console.WriteLine($"Blob URL: {imageUrl}");
                     product.ImageURL = imageUrl;
                 }
 

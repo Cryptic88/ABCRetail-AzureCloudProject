@@ -31,7 +31,13 @@ namespace StoreToTableFunction
             _logger.LogInformation("StoreProduct function triggered.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var product = JsonSerializer.Deserialize<Product>(requestBody);
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            var product = JsonSerializer.Deserialize<Product>(requestBody, options);
 
             if (product == null)
             {
@@ -40,8 +46,9 @@ namespace StoreToTableFunction
                 return badResponse;
             }
 
+
             if (string.IsNullOrEmpty(product.PartitionKey))
-                product.PartitionKey = "PRODUCTS";
+                product.PartitionKey = "ProductsPartition";
             if (string.IsNullOrEmpty(product.RowKey))
                 product.RowKey = Guid.NewGuid().ToString();
 

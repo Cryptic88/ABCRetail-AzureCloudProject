@@ -8,10 +8,15 @@ namespace ABCRetail.Models
     public class Product : ITableEntity
     {
         [Key]
+        [JsonPropertyName("productID")]
         public string? Product_ID { get; set; }
+        [JsonPropertyName("productName")]
         public string? Product_Name { get; set; }
+        [JsonPropertyName("description")]
         public string? Description { get; set; }
+        [JsonPropertyName("imageURL")]
         public string? ImageURL { get; set; }
+        [JsonPropertyName("price")]
         public int? Price { get; set; }
 
         public string? PartitionKey { get; set; }
