@@ -8,10 +8,10 @@ namespace ABCRetail.Controllers
 {
     public class OrderController : Controller
     {
-        private readonly QueueService _queueService;
+        private readonly QueueFunctionService _queueService;
         private readonly TableStorageFunctionService _tableStorageService;
 
-        public OrderController(QueueService queueService, TableStorageFunctionService tableStorageService)
+        public OrderController(QueueFunctionService queueService, TableStorageFunctionService tableStorageService)
         {
             _queueService = queueService;
             _tableStorageService = tableStorageService;
@@ -55,6 +55,9 @@ namespace ABCRetail.Controllers
                 return View();
             }
 
+            var customer = await _tableStorageService.GetCustomerByCustomerIdAsync(customerId);
+            var product = await _tableStorageService.GetProductByProductIdAsync(productId);
+
             var order = new Order
             {
                 Order_ID = Guid.NewGuid().ToString(),
@@ -63,67 +66,32 @@ namespace ABCRetail.Controllers
                 Quantity = quantity,
                 Status = "Pending",
                 OrderDate = DateTime.UtcNow,
-                PartitionKey = "OrdersPartition",
+                PartitionKey = "ORDERS",
                 RowKey = Guid.NewGuid().ToString()
             };
 
-
             await _tableStorageService.AddOrderAsync(order);
 
-            // Sending custom messages to the Azure Queue
-            await _queueService.SendMessageAsync($"Order Placed: Order ID={order.Order_ID}, Customer ID={order.Customer_Id}, Product ID={order.Product_ID}, Quantity={order.Quantity}");
-            await _queueService.SendMessageAsync($"Processing Order: Order ID={order.Order_ID}");
-
-            // If the product has an image, send an image upload message
-            var product = await _tableStorageService.GetProductAsync("ProductsPartition", productId);
-            if (product != null && !string.IsNullOrEmpty(product.ImageURL))
-            {
-                await _queueService.SendMessageAsync($"Image Uploaded: {product.ImageURL} for Order ID={order.Order_ID}");
-            }
-
-            await _tableStorageService.AddOrderAsync(order);
-
+            // Only send the properly formatted order to the queue
             await _queueService.SendOrderMessageAsync(order);
 
             TempData["Message"] = "Order placed successfully!";
-
             return RedirectToAction("Index");
         }
 
         //Simulates order processing by getting the next message from the queue and then updates the order status in Table Storage
         //This simulates the delivery process
         [HttpPost]
-        public async Task<IActionResult> ProcessOrder(string orderId)
+        public async Task<IActionResult> ProcessOrder(string rowKey)
         {
-            var existingOrder = await _tableStorageService.GetOrderByOrderIdAsync(orderId);
-            if (existingOrder != null)
-            {
-                switch (existingOrder.Status)
-                {
-                    case "Pending":
-                        existingOrder.Status = "Packaged";
-                        break;
-                    case "Packaged":
-                        existingOrder.Status = "Out for Delivery";
-                        break;
-                    case "Out for Delivery":
-                        existingOrder.Status = "Completed";
-                        break;
-                    default:
-                        TempData["Error"] = "Order is already completed.";
-                        return RedirectToAction("Index");
-                }
-
-                await _tableStorageService.UpdateOrderAsync(existingOrder);
-                TempData["Message"] = $"Order {orderId} updated to {existingOrder.Status}.";
-            }
-            else
-            {
-                TempData["Error"] = "Order not found.";
-            }
+            bool success = await _tableStorageService.ProcessOrderAsync(rowKey);
+            TempData[success ? "Message" : "Error"] = success
+                ? $"Order {rowKey} processed successfully."
+                : $"Failed to process order {rowKey}.";
 
             return RedirectToAction("Index");
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CancelOrder(string partitionKey, string rowKey)
@@ -146,5 +114,14 @@ namespace ABCRetail.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetNotifications()
+        {
+            var orders = await _tableStorageService.GetAllOrdersAsync(); // last 10 orders
+            var notifications = orders.Select(o => $"New Order: {o.RowKey}, Customer: {o.Customer_Id}, Product: {o.Product_ID}, Qty: {o.Quantity}");
+            return Json(notifications);
+        }
+
     }
 }

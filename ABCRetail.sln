@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoreToTableFunction", "Sto
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteToBlobFunction", "WriteToBlobFunction\WriteToBlobFunction.csproj", "{B076A72A-77B1-4C13-B16C-59BF5087B2A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessOrderFunction", "ProcessOrderFunction\ProcessOrderFunction.csproj", "{D1469C62-AE20-44F9-B96E-D367A1A31397}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UploadFileFunction", "UploadFileFunction\UploadFileFunction.csproj", "{08442199-720D-41C5-958A-B52487156770}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{B076A72A-77B1-4C13-B16C-59BF5087B2A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B076A72A-77B1-4C13-B16C-59BF5087B2A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B076A72A-77B1-4C13-B16C-59BF5087B2A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1469C62-AE20-44F9-B96E-D367A1A31397}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1469C62-AE20-44F9-B96E-D367A1A31397}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1469C62-AE20-44F9-B96E-D367A1A31397}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1469C62-AE20-44F9-B96E-D367A1A31397}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08442199-720D-41C5-958A-B52487156770}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08442199-720D-41C5-958A-B52487156770}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08442199-720D-41C5-958A-B52487156770}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08442199-720D-41C5-958A-B52487156770}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

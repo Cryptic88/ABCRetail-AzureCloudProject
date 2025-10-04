@@ -8,6 +8,7 @@ using Azure.Data.Tables;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using ABCRetail.Models;
 
 namespace StoreToTableFunction
 {

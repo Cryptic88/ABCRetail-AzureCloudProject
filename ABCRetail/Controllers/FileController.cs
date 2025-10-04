@@ -7,6 +7,7 @@ namespace ABCRetail.Controllers
     public class FileController : Controller
     {
         private readonly AzureFileShareService _fileShareService;
+        private const string DirectoryName = "dummycontracts";
 
         public FileController(AzureFileShareService fileShareService)
         {
@@ -17,7 +18,7 @@ namespace ABCRetail.Controllers
             List<FileModel> files;
             try
             {
-                files = await _fileShareService.ListFilesAsync("dummycontracts");
+                files = await _fileShareService.ListFilesAsync(DirectoryName);
             }
             catch (Exception ex)
             {
@@ -33,7 +34,8 @@ namespace ABCRetail.Controllers
             if (file == null || file.Length == 0)
             {
                 ModelState.AddModelError("File", "Please select a file to upload");
-                return await Index();
+                var files = await _fileShareService.ListFilesAsync("dummycontracts");
+                return View("Index", files); 
             }
 
             try
@@ -58,7 +60,7 @@ namespace ABCRetail.Controllers
 
             try
             {
-                var fileStream = await _fileShareService.DownloadFileAsync("dummycontracts", fileName);
+                var fileStream = await _fileShareService.DownloadFileAsync(DirectoryName, fileName);
                 return File(fileStream, "application/octet-stream", fileName);
             }
             catch (Exception e)

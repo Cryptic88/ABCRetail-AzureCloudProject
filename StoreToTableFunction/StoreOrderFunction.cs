@@ -31,7 +31,10 @@ namespace StoreToTableFunction
             _logger.LogInformation("StoreOrder function triggered.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var order = JsonSerializer.Deserialize<Order>(requestBody);
+            var order = JsonSerializer.Deserialize<Order>(requestBody, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
 
             if (order == null)
             {
@@ -127,9 +130,9 @@ namespace StoreToTableFunction
             _logger.LogInformation($"UpdateOrder function triggered for {partitionKey}/{rowKey}.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var order = JsonSerializer.Deserialize<Order>(requestBody);
+            var updatedData = JsonSerializer.Deserialize<Order>(requestBody);
 
-            if (order == null)
+            if (updatedData == null)
             {
                 var badResponse = req.CreateResponse(System.Net.HttpStatusCode.BadRequest);
                 await badResponse.WriteStringAsync("Invalid order data.");
@@ -138,9 +141,33 @@ namespace StoreToTableFunction
 
             try
             {
-                await _orderTableClient.UpdateEntityAsync(order, ETag.All, TableUpdateMode.Replace);
+                // Fetch existing entity
+                var existingEntityResponse = await _orderTableClient.GetEntityAsync<Order>(partitionKey, rowKey);
+                var existingEntity = existingEntityResponse.Value;
+
+                // Only update the fields that are non-null in the request
+                if (!string.IsNullOrEmpty(updatedData.Status))
+                {
+                    existingEntity.Status = updatedData.Status;
+                }
+
+                // If you want to update quantity or other fields:
+                if (updatedData.Quantity > 0)
+                {
+                    existingEntity.Quantity = updatedData.Quantity;
+                }
+
+                // Update the entity in Table Storage
+                await _orderTableClient.UpdateEntityAsync(existingEntity, ETag.All, TableUpdateMode.Replace);
+
                 var response = req.CreateResponse(System.Net.HttpStatusCode.OK);
                 await response.WriteStringAsync($"Order {rowKey} updated successfully.");
+                return response;
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                var response = req.CreateResponse(System.Net.HttpStatusCode.NotFound);
+                await response.WriteStringAsync("Order not found.");
                 return response;
             }
             catch (Exception ex)
@@ -151,6 +178,60 @@ namespace StoreToTableFunction
                 return response;
             }
         }
+
+        [Function("ProcessOrder")]
+        public async Task<HttpResponseData> ProcessOrder(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "order/process/{rowKey}")] HttpRequestData req,
+        string rowKey)
+        {
+            _logger.LogInformation($"ProcessOrder function triggered for RowKey: {rowKey}");
+
+            try
+            {
+                // Fetch existing order
+                var orderResponse = await _orderTableClient.GetEntityAsync<Order>("ORDERS", rowKey);
+                var order = orderResponse.Value;
+
+                // Update status progression
+                order.Status = order.Status switch
+                {
+                    "Pending" => "Packaged",
+                    "Packaged" => "Out for Delivery",
+                    "Out for Delivery" => "Completed",
+                    "Completed" => "Completed",
+                    _ => order.Status
+                };
+
+                // Save the updated order
+                await _orderTableClient.UpdateEntityAsync(order, ETag.All, TableUpdateMode.Replace);
+
+                // --- Queue Notification ---
+                var queueConnection = Environment.GetEnvironmentVariable("connection")!;
+                var queueClient = new Azure.Storage.Queues.QueueClient(queueConnection, "orders");
+                await queueClient.CreateIfNotExistsAsync();
+
+                string notificationMessage = $"Order {order.RowKey} for Customer {order.Customer_Id} is now '{order.Status}'.";
+                await queueClient.SendMessageAsync(notificationMessage);
+
+                var response = req.CreateResponse(System.Net.HttpStatusCode.OK);
+                await response.WriteStringAsync($"Order {rowKey} updated to {order.Status} and notification sent.");
+                return response;
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                var response = req.CreateResponse(System.Net.HttpStatusCode.NotFound);
+                await response.WriteStringAsync("Order not found.");
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing order.");
+                var response = req.CreateResponse(System.Net.HttpStatusCode.InternalServerError);
+                await response.WriteStringAsync("Error processing order.");
+                return response;
+            }
+        }
+
 
         [Function("DeleteOrder")]
         public async Task<HttpResponseData> DeleteOrder(

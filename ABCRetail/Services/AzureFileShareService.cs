@@ -1,87 +1,75 @@
 ﻿using ABCRetail.Models;
-using Azure;
-using Azure.Storage.Files.Shares;
-using Azure.Storage.Files.Shares.Models;
+using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace ABCRetail.Services
 {
     public class AzureFileShareService
     {
+        private readonly HttpClient _httpClient;
+        private readonly string _uploadFunctionUrl;
+        private readonly string _listFunctionUrl;
+        private readonly string _downloadFunctionUrl;
 
-        private readonly string _connectionString;
-        private readonly string _fileShareName;
-
-        public AzureFileShareService(string connectionString, string fileShareName)
+        public AzureFileShareService(HttpClient httpClient)
         {
-            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
-            _fileShareName = fileShareName ?? throw new ArgumentNullException(nameof(fileShareName));
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _uploadFunctionUrl = "http://localhost:7047/api/UploadToFileShare";
+            _listFunctionUrl = "http://localhost:7047/api/ListFilesInDirectory";
+            _downloadFunctionUrl = "http://localhost:7047/api/DownloadFile";
         }
+
         public async Task UploadFileAsync(string directoryName, string fileName, Stream fileStream)
         {
-            try
-            {
-                var serviceClient = new ShareServiceClient(_connectionString);
-                var shareClient = serviceClient.GetShareClient(_fileShareName);
-                var directoryClient = shareClient.GetDirectoryClient(directoryName);
-                await directoryClient.CreateIfNotExistsAsync();
+            using var content = new MultipartFormDataContent();
+            var fileContent = new StreamContent(fileStream);
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
 
-                var fileClient = directoryClient.GetFileClient(fileName);
-                await fileClient.CreateAsync(fileStream.Length);
-                await fileClient.UploadRangeAsync(new HttpRange(0, fileStream.Length), fileStream);
-            }
-            catch (Exception ex)
+            content.Add(fileContent, "file", fileName);
+            content.Add(new StringContent(directoryName ?? ""), "directory");
+
+            var response = await _httpClient.PostAsync(_uploadFunctionUrl, content);
+
+            if (!response.IsSuccessStatusCode)
             {
-                throw new Exception("Failed to upload file to Azure File Share." + ex.Message, ex);
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to upload file: {response.StatusCode} - {error}");
             }
         }
 
         public async Task<Stream> DownloadFileAsync(string directoryName, string fileName)
         {
-            try
-            {
-                var serviceClient = new ShareServiceClient(_connectionString);
-                var shareClient = serviceClient.GetShareClient(_fileShareName);
-                var directoryClient = shareClient.GetDirectoryClient(directoryName);
-                var fileClient = directoryClient.GetFileClient(fileName);
+            var requestUrl = $"{_downloadFunctionUrl}?directory={Uri.EscapeDataString(directoryName)}&fileName={Uri.EscapeDataString(fileName)}";
 
-                var downloadInfo = await fileClient.DownloadAsync();
-                return downloadInfo.Value.Content;
-            }
-            catch (Exception ex)
+            var response = await _httpClient.GetAsync(requestUrl);
+
+            if (!response.IsSuccessStatusCode)
             {
-                throw new Exception("Failed to download file from Azure File Share." + ex.Message, ex);
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to download file: {response.StatusCode} - {error}");
             }
+
+            return await response.Content.ReadAsStreamAsync();
         }
 
         public async Task<List<FileModel>> ListFilesAsync(string directoryName)
         {
-            var contracts = new List<FileModel>();
-            try 
-            {
-                var serviceClient = new ShareServiceClient(_connectionString);
-                var shareClient = serviceClient.GetShareClient(_fileShareName);
-                var directoryClient = shareClient.GetDirectoryClient(directoryName);
+            var requestUrl = $"{_listFunctionUrl}?directory={Uri.EscapeDataString(directoryName)}";
 
-                await foreach (ShareFileItem item in directoryClient.GetFilesAndDirectoriesAsync())
-                {
-                    if (!item.IsDirectory)
-                    {
-                        var fileClient = directoryClient.GetFileClient(item.Name);
-                        var properties = await fileClient.GetPropertiesAsync();
-                        contracts.Add(new FileModel
-                        {
-                            Name = item.Name,
-                            Size = properties.Value.ContentLength,
-                            LastModified = properties.Value.LastModified
-                        });
-                    }
-                }
-            }
-            catch (Exception ex)
+            var response = await _httpClient.GetAsync(requestUrl);
+
+            if (!response.IsSuccessStatusCode)
             {
-                throw new Exception("Failed to list files in Azure File Share." + ex.Message, ex);
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to list files: {response.StatusCode} - {error}");
             }
-            return contracts;
+
+            var json = await response.Content.ReadAsStringAsync();
+            var files = JsonSerializer.Deserialize<List<FileModel>>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return files ?? new List<FileModel>();
         }
     }
 }
+

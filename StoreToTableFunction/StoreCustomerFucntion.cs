@@ -9,6 +9,7 @@ using Azure.Data.Tables;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using ABCRetail.Models;
 
 namespace StoreToTableFunction
 {
@@ -46,8 +47,11 @@ namespace StoreToTableFunction
                 return badResponse;
             }
 
+            if (string.IsNullOrEmpty(customer.Customer_Id))
+                customer.Customer_Id = Guid.NewGuid().ToString();
+
             if (string.IsNullOrEmpty(customer.PartitionKey))
-                customer.PartitionKey = "CUSTOMERS";
+                customer.PartitionKey = "CustomersPartition";
             if (string.IsNullOrEmpty(customer.RowKey))
                 customer.RowKey = Guid.NewGuid().ToString();
 

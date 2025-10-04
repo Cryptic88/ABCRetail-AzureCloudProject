@@ -41,19 +41,25 @@ namespace ABCRetail
             });
 
 
-            builder.Services.AddSingleton<QueueService>(sp =>
+            // Add HttpClient for QueueFunctionService
+            builder.Services.AddHttpClient<QueueFunctionService>();
+
+            // Add QueueFunctionService with base URL from appsettings.json
+            builder.Services.AddSingleton(sp =>
             {
-                var connectionString = builder.Configuration.GetConnectionString("AzureStorage");
-                return new QueueService(connectionString, "orders");
+                var httpClient = sp.GetRequiredService<HttpClient>();
+                var functionUrl = builder.Configuration["QueueFunctionUrl"]; // put the function URL in appsettings.json
+                return new QueueFunctionService(httpClient, functionUrl);
             });
+
+            builder.Services.AddHttpClient<AzureFileShareService>();
 
             builder.Services.AddSingleton<AzureFileShareService>(sp =>
             {
-                var connectionString = builder.Configuration.GetConnectionString("AzureStorage");
-                return new AzureFileShareService(connectionString, "fileshare");
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var httpClient = httpClientFactory.CreateClient(nameof(AzureFileShareService));
+                return new AzureFileShareService(httpClient);
             });
-
-
 
             var app = builder.Build();
 
