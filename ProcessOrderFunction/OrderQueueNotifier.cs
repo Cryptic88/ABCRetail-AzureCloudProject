@@ -1,28 +1,35 @@
-using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using ABCRetail.Models;
 using Newtonsoft.Json;
+using System;
+using System.Threading.Tasks;
+using Azure.Storage.Queues;
 
 namespace ProcessOrderFunction
 {
     public class OrderQueueNotifier
     {
         private readonly ILogger<OrderQueueNotifier> _logger;
+        private readonly string _notificationsConnection;
 
         public OrderQueueNotifier(ILogger<OrderQueueNotifier> logger)
         {
             _logger = logger;
+            _notificationsConnection = Environment.GetEnvironmentVariable("connection")
+    ?? throw new InvalidOperationException("Queue connection string not set in environment variables.");
         }
 
         [Function(nameof(OrderQueueNotifier))]
-        public void Run(
+        public async Task Run(
             [QueueTrigger("orders", Connection = "connection")] string messageText)
         {
             _logger.LogInformation("===== Queue Trigger Started =====");
+            _logger.LogInformation($"Raw queue message: {messageText}");
 
             try
             {
-                // Use Newtonsoft.Json for maximum compatibility with MVC sender
+
                 var order = JsonConvert.DeserializeObject<Order>(messageText, new JsonSerializerSettings
                 {
                     MissingMemberHandling = MissingMemberHandling.Ignore,
@@ -41,12 +48,25 @@ namespace ProcessOrderFunction
                 _logger.LogInformation($"Quantity: {order.Quantity}");
                 _logger.LogInformation($"Status: {order.Status}");
                 _logger.LogInformation($"Order Date: {order.OrderDate}");
+
+                // Create a custom, user-friendly message
+                string userMessage = $"New Order: {order.Order_ID}\n" +
+                                     $"Customer: {order.Customer_Id}\n" +
+                                     $"Product: {order.Product_ID}\n" +
+                                     $"Quantity: {order.Quantity}\n" +
+                                     $"Status: {order.Status}";
+
+                // Send notification to the notifications queue
+                var notificationsQueue = new QueueClient(_notificationsConnection, "notification");
+                await notificationsQueue.CreateIfNotExistsAsync();
+                await notificationsQueue.SendMessageAsync(userMessage);
+
+                _logger.LogInformation($"Notification sent: {userMessage}");
             }
             catch (JsonException ex)
             {
                 _logger.LogError(ex, "Failed to deserialize order message: invalid JSON.");
-                // Do not swallow the exception if you want Azure Functions to move it to poison queue
-                throw;
+                throw; // Rethrow so Azure moves message to poison queue if necessary
             }
             catch (Exception ex)
             {
@@ -56,3 +76,4 @@ namespace ProcessOrderFunction
         }
     }
 }
+

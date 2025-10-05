@@ -1,7 +1,8 @@
 using System;
-using System.IO;
 using System;
 using System.IO;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using ABCRetail.Models;
 using Azure.Storage.Queues;
@@ -47,12 +48,12 @@ public class WriteMessageQueue
                 return new BadRequestObjectResult("Order data is missing required fields.");
             }
 
-            // Serialize with property names matching the Order class
-            string message = Newtonsoft.Json.JsonConvert.SerializeObject(order);
+            string message = JsonConvert.SerializeObject(order);
 
             var queueClient = new QueueClient(_connectionString, "orders");
             await queueClient.CreateIfNotExistsAsync();
-            await queueClient.SendMessageAsync(message);
+            await queueClient.SendMessageAsync(Convert.ToBase64String(Encoding.UTF8.GetBytes(message)));
+
 
             _logger.LogInformation($"Order message sent to queue: {order.Order_ID}");
             return new OkObjectResult("Order message sent to queue successfully.");

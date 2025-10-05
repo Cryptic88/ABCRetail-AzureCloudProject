@@ -84,11 +84,29 @@ namespace ABCRetail.Controllers
         [HttpPost]
         public async Task<IActionResult> ProcessOrder(string rowKey)
         {
-            bool success = await _tableStorageService.ProcessOrderAsync(rowKey);
-            TempData[success ? "Message" : "Error"] = success
-                ? $"Order {rowKey} processed successfully."
-                : $"Failed to process order {rowKey}.";
+            if (string.IsNullOrEmpty(rowKey))
+            {
+                TempData["Error"] = "Invalid order reference.";
+                return RedirectToAction("Index");
+            }
 
+            // 1️⃣ Process order in Table Storage
+            bool success = await _tableStorageService.ProcessOrderAsync(rowKey);
+            if (!success)
+            {
+                TempData["Error"] = $"Failed to process order {rowKey}.";
+                return RedirectToAction("Index");
+            }
+
+            // 2️⃣ Get full order details
+            var order = await _tableStorageService.GetOrderAsync("ORDERS", rowKey);
+            if (order != null)
+            {
+                // 3️⃣ Send to queue for human-readable message
+                await _queueService.SendOrderMessageAsync(order);
+            }
+
+            TempData["Message"] = $"Order {rowKey} processed successfully!";
             return RedirectToAction("Index");
         }
 
