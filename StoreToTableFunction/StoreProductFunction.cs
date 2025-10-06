@@ -8,7 +8,6 @@ using Azure.Data.Tables;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using ABCRetail.Models;
 
 namespace StoreToTableFunction
 {
@@ -20,14 +19,14 @@ namespace StoreToTableFunction
         public StoreProductFunction(ILogger<StoreProductFunction> logger)
         {
             _logger = logger;
-            string connectionString = Environment.GetEnvironmentVariable("connection")!;
+            string connectionString = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
             _productTableClient = new TableClient(connectionString, "product");
             _productTableClient.CreateIfNotExists();
         }
 
         [Function("StoreProduct")]
         public async Task<HttpResponseData> StoreProduct(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "product")] HttpRequestData req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "product")] HttpRequestData req)
         {
             _logger.LogInformation("StoreProduct function triggered.");
 
@@ -38,7 +37,7 @@ namespace StoreToTableFunction
                 PropertyNameCaseInsensitive = true
             };
 
-            var product = JsonSerializer.Deserialize<Product>(requestBody, options);
+            var product = JsonSerializer.Deserialize<Product>(requestBody, options); //(CSharp TV, 2024)
 
             if (product == null)
             {
@@ -71,7 +70,7 @@ namespace StoreToTableFunction
 
         [Function("GetAllProducts")]
         public async Task<HttpResponseData> GetAllProducts(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "product")] HttpRequestData req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "product")] HttpRequestData req)
         {
             _logger.LogInformation("GetAllProducts function triggered.");
 
@@ -98,7 +97,7 @@ namespace StoreToTableFunction
 
         [Function("GetProductByKey")]
         public async Task<HttpResponseData> GetProductByKey(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "product/{partitionKey}/{rowKey}")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "product/{partitionKey}/{rowKey}")] HttpRequestData req,
             string partitionKey,
             string rowKey)
         {
@@ -128,14 +127,14 @@ namespace StoreToTableFunction
 
         [Function("UpdateProduct")]
         public async Task<HttpResponseData> UpdateProduct(
-            [HttpTrigger(AuthorizationLevel.Function, "put", Route = "product/{partitionKey}/{rowKey}")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "product/{partitionKey}/{rowKey}")] HttpRequestData req,
             string partitionKey,
             string rowKey)
         {
             _logger.LogInformation($"UpdateProduct function triggered for {partitionKey}/{rowKey}.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var product = JsonSerializer.Deserialize<Product>(requestBody);
+            var product = JsonSerializer.Deserialize<Product>(requestBody); //(CSharp TV, 2024)
 
             if (product == null)
             {
@@ -165,7 +164,7 @@ namespace StoreToTableFunction
 
         [Function("DeleteProduct")]
         public async Task<HttpResponseData> DeleteProduct(
-            [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "product/{partitionKey}/{rowKey}")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "product/{partitionKey}/{rowKey}")] HttpRequestData req,
             string partitionKey,
             string rowKey)
         {
@@ -194,3 +193,10 @@ namespace StoreToTableFunction
         }
     }
 }
+
+/*Reference List:
+ 
+CSharp TV, 2024. Leveraging Azure Tables with Azure Functions - Azure Essentials Series - Ep: 1. [video online] Available at:
+<https://www.youtube.com/watch?v=3L7m0gXbtPY&t=2065s> [Accessed 30 September 2025].
+
+ */

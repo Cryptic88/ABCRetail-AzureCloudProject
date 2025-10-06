@@ -19,14 +19,14 @@ namespace StoreToTableFunction
         public StoreOrderFunction(ILogger<StoreOrderFunction> logger)
         {
             _logger = logger;
-            string connectionString = Environment.GetEnvironmentVariable("connection")!;
+            string connectionString = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
             _orderTableClient = new TableClient(connectionString, "orders");
             _orderTableClient.CreateIfNotExists();
         }
 
         [Function("StoreOrder")]
         public async Task<HttpResponseData> StoreOrder(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "order")] HttpRequestData req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "order")] HttpRequestData req)
         {
             _logger.LogInformation("StoreOrder function triggered.");
 
@@ -66,7 +66,7 @@ namespace StoreToTableFunction
 
         [Function("GetAllOrders")]
         public async Task<HttpResponseData> GetAllOrders(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "order")] HttpRequestData req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "order")] HttpRequestData req)
         {
             _logger.LogInformation("GetAllOrders function triggered.");
 
@@ -93,7 +93,7 @@ namespace StoreToTableFunction
 
         [Function("GetOrder")]
         public async Task<HttpResponseData> GetOrder(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "order/{partitionKey}/{rowKey}")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "order/{partitionKey}/{rowKey}")] HttpRequestData req,
             string partitionKey,
             string rowKey)
         {
@@ -123,14 +123,14 @@ namespace StoreToTableFunction
 
         [Function("UpdateOrder")]
         public async Task<HttpResponseData> UpdateOrder(
-            [HttpTrigger(AuthorizationLevel.Function, "put", Route = "order/{partitionKey}/{rowKey}")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "order/{partitionKey}/{rowKey}")] HttpRequestData req,
             string partitionKey,
             string rowKey)
         {
             _logger.LogInformation($"UpdateOrder function triggered for {partitionKey}/{rowKey}.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var updatedData = JsonSerializer.Deserialize<Order>(requestBody);
+            var updatedData = JsonSerializer.Deserialize<Order>(requestBody); //(CSharp TV, 2024)
 
             if (updatedData == null)
             {
@@ -145,13 +145,11 @@ namespace StoreToTableFunction
                 var existingEntityResponse = await _orderTableClient.GetEntityAsync<Order>(partitionKey, rowKey);
                 var existingEntity = existingEntityResponse.Value;
 
-                // Only update the fields that are non-null in the request
                 if (!string.IsNullOrEmpty(updatedData.Status))
                 {
                     existingEntity.Status = updatedData.Status;
                 }
 
-                // If you want to update quantity or other fields:
                 if (updatedData.Quantity > 0)
                 {
                     existingEntity.Quantity = updatedData.Quantity;
@@ -181,7 +179,7 @@ namespace StoreToTableFunction
 
         [Function("ProcessOrder")]
         public async Task<HttpResponseData> ProcessOrder(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "order/process/{rowKey}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "order/process/{rowKey}")] HttpRequestData req,
         string rowKey)
         {
             _logger.LogInformation($"ProcessOrder function triggered for RowKey: {rowKey}");
@@ -200,12 +198,11 @@ namespace StoreToTableFunction
                     "Out for Delivery" => "Completed",
                     "Completed" => "Completed",
                     _ => order.Status
-                };
+                }; // (Microsoft Learn, 2022)
 
                 // Save the updated order
                 await _orderTableClient.UpdateEntityAsync(order, ETag.All, TableUpdateMode.Replace);
 
-                // --- Queue Notification ---
                 var queueConnection = Environment.GetEnvironmentVariable("connection")!;
                 var queueClient = new Azure.Storage.Queues.QueueClient(queueConnection, "orders");
                 await queueClient.CreateIfNotExistsAsync();
@@ -235,7 +232,7 @@ namespace StoreToTableFunction
 
         [Function("DeleteOrder")]
         public async Task<HttpResponseData> DeleteOrder(
-            [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "order/{partitionKey}/{rowKey}")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "order/{partitionKey}/{rowKey}")] HttpRequestData req,
             string partitionKey,
             string rowKey)
         {
@@ -265,3 +262,11 @@ namespace StoreToTableFunction
     }
 }
 
+/*Reference List:
+ 
+CSharp TV, 2024. Leveraging Azure Tables with Azure Functions - Azure Essentials Series - Ep: 1. [video online] Available at:
+<https://www.youtube.com/watch?v=3L7m0gXbtPY&t=2065s> [Accessed 30 September 2025].
+
+Microsoft Learn, 2022. switch expression - pattern matching expressions using the switch keyword. [online] Available at:
+<https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/switch-expression> [Accessed 30 September 2025].
+*/

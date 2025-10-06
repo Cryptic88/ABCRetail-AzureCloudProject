@@ -19,7 +19,7 @@ namespace UploadFileFunction
 
         [Function("DownloadFile")]
         public async Task<HttpResponseData> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequestData req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
         {
             var query = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
             string directoryName = query["directory"];
@@ -34,8 +34,8 @@ namespace UploadFileFunction
 
             try
             {
-                string connectionString = Environment.GetEnvironmentVariable("AzureFilesConnectionString");
-                string shareName = Environment.GetEnvironmentVariable("AzureFileShareName");
+                string connectionString = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
+                string shareName = "dummycontracts";
 
                 var serviceClient = new ShareServiceClient(connectionString);
                 var shareClient = serviceClient.GetShareClient(shareName);

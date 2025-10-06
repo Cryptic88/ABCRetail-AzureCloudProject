@@ -14,9 +14,9 @@ namespace ABCRetail.Services
         public AzureFileShareService(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _uploadFunctionUrl = "http://localhost:7047/api/UploadToFileShare";
-            _listFunctionUrl = "http://localhost:7047/api/ListFilesInDirectory";
-            _downloadFunctionUrl = "http://localhost:7047/api/DownloadFile";
+            _uploadFunctionUrl = "https://fileshare-d3aaabdacyascnbe.southafricanorth-01.azurewebsites.net/api/UploadToFileShare";
+            _listFunctionUrl = "https://fileshare-d3aaabdacyascnbe.southafricanorth-01.azurewebsites.net/api/ListFilesInDirectory";
+            _downloadFunctionUrl = "https://fileshare-d3aaabdacyascnbe.southafricanorth-01.azurewebsites.net/api/DownloadFile";
         }
 
         public async Task UploadFileAsync(string directoryName, string fileName, Stream fileStream)

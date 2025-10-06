@@ -1,6 +1,5 @@
 ﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using ABCRetail.Models;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
@@ -16,13 +15,12 @@ namespace ProcessOrderFunction
         public OrderQueueNotifier(ILogger<OrderQueueNotifier> logger)
         {
             _logger = logger;
-            _notificationsConnection = Environment.GetEnvironmentVariable("connection")
-    ?? throw new InvalidOperationException("Queue connection string not set in environment variables.");
+            _notificationsConnection = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
         }
 
         [Function(nameof(OrderQueueNotifier))]
         public async Task Run(
-            [QueueTrigger("orders", Connection = "connection")] string messageText)
+            [QueueTrigger("orders", Connection = "AzureWebJobsStorage")] string messageText)
         {
             _logger.LogInformation("===== Queue Trigger Started =====");
             _logger.LogInformation($"Raw queue message: {messageText}");
@@ -49,6 +47,7 @@ namespace ProcessOrderFunction
                 _logger.LogInformation($"Status: {order.Status}");
                 _logger.LogInformation($"Order Date: {order.OrderDate}");
 
+                //(Microsoft Learn, 2024)
                 // Create a custom, user-friendly message
                 string userMessage = $"New Order: {order.Order_ID}\n" +
                                      $"Customer: {order.Customer_Id}\n" +
@@ -66,7 +65,7 @@ namespace ProcessOrderFunction
             catch (JsonException ex)
             {
                 _logger.LogError(ex, "Failed to deserialize order message: invalid JSON.");
-                throw; // Rethrow so Azure moves message to poison queue if necessary
+                throw;
             }
             catch (Exception ex)
             {
@@ -77,3 +76,7 @@ namespace ProcessOrderFunction
     }
 }
 
+/*Reference List:
+  Microsoft Learn, 2024. Azure Queue storage trigger for Azure Functions. [online] Available at:
+  <https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-queue-trigger?tabs=python-v2%2Cisolated-process%2Cnodejs-v4%2Cextensionv5&pivots=programming-language-csharp> [Acccessed 5 October 2025]
+*/

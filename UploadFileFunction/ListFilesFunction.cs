@@ -1,4 +1,4 @@
-using ABCRetail.Models;
+
 using System.Net;
 using Azure.Storage.Files.Shares;
 using Microsoft.Azure.Functions.Worker;
@@ -19,12 +19,12 @@ namespace UploadFileFunction
 
         [Function("ListFilesInDirectory")]
         public async Task<HttpResponseData> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequestData req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
         {
             try
             {
-                string connectionString = Environment.GetEnvironmentVariable("AzureFilesConnectionString");
-                string shareName = Environment.GetEnvironmentVariable("AzureFileShareName");
+                string connectionString = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
+                string shareName = "dummycontracts";
                 string directoryName = "dummycontracts";
 
                 var serviceClient = new ShareServiceClient(connectionString);

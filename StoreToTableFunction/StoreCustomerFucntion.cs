@@ -9,7 +9,6 @@ using Azure.Data.Tables;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using ABCRetail.Models;
 
 namespace StoreToTableFunction
 {
@@ -21,14 +20,14 @@ namespace StoreToTableFunction
         public StoreCustomerFunction(ILogger<StoreCustomerFunction> logger)
         {
             _logger = logger;
-            string connectionString = Environment.GetEnvironmentVariable("connection")!;
+            string connectionString = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
             _customerTableClient = new TableClient(connectionString, "customer");
             _customerTableClient.CreateIfNotExists();
         }
 
         [Function("StoreCustomer")]
         public async Task<HttpResponseData> StoreCustomer(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "customer")] HttpRequestData req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "customer")] HttpRequestData req)
         {
             _logger.LogInformation("StoreCustomer function triggered.");
 
@@ -38,7 +37,7 @@ namespace StoreToTableFunction
                 PropertyNameCaseInsensitive = true
             };
 
-            var customer = JsonSerializer.Deserialize<Customer>(requestBody, options);
+            var customer = JsonSerializer.Deserialize<Customer>(requestBody, options); //(CSharp TV, 2024)
 
             if (customer == null)
             {
@@ -73,7 +72,7 @@ namespace StoreToTableFunction
 
         [Function("GetAllCustomers")]
         public async Task<HttpResponseData> GetAllCustomers(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "customer")] HttpRequestData req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "customer")] HttpRequestData req)
         {
             _logger.LogInformation("GetAllCustomers function triggered.");
 
@@ -102,7 +101,7 @@ namespace StoreToTableFunction
 
         [Function("GetCustomer")]
         public async Task<HttpResponseData> GetCustomer(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "customer/{partitionKey}/{rowKey}")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "customer/{partitionKey}/{rowKey}")] HttpRequestData req,
             string partitionKey,
             string rowKey)
         {
@@ -132,14 +131,14 @@ namespace StoreToTableFunction
 
         [Function("UpdateCustomer")]
         public async Task<HttpResponseData> UpdateCustomer(
-            [HttpTrigger(AuthorizationLevel.Function, "put", Route = "customer/{partitionKey}/{rowKey}")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "customer/{partitionKey}/{rowKey}")] HttpRequestData req,
             string partitionKey,
             string rowKey)
         {
             _logger.LogInformation($"UpdateCustomer function triggered for {partitionKey}/{rowKey}.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var customer = JsonSerializer.Deserialize<Customer>(requestBody);
+            var customer = JsonSerializer.Deserialize<Customer>(requestBody); //(CSharp TV, 2024)
 
             if (customer == null)
             {
@@ -166,7 +165,7 @@ namespace StoreToTableFunction
 
         [Function("DeleteCustomer")]
         public async Task<HttpResponseData> DeleteCustomer(
-            [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "customer/{partitionKey}/{rowKey}")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "customer/{partitionKey}/{rowKey}")] HttpRequestData req,
             string partitionKey,
             string rowKey)
         {
@@ -196,4 +195,9 @@ namespace StoreToTableFunction
     }
 }
 
+/*Reference List:
+ 
+CSharp TV, 2024. Leveraging Azure Tables with Azure Functions - Azure Essentials Series - Ep: 1. [video online] Available at:
+<https://www.youtube.com/watch?v=3L7m0gXbtPY&t=2065s> [Accessed 30 September 2025].
 
+ */

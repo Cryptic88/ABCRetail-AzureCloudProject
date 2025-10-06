@@ -69,7 +69,8 @@ public class UploadProductImage
                 throw new System.Exception("File or Product ID missing.");
 
             // Upload to blob
-            var connectionString = System.Environment.GetEnvironmentVariable("BlobConnection");
+            // (Microsof Learn, 2025)
+            var connectionString = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
             var blobServiceClient = new BlobServiceClient(connectionString);
             var containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
             var blobClient = containerClient.GetBlobClient(fileName);
@@ -105,7 +106,7 @@ public class UploadProductImage
                 return badResponse;
             }
 
-            var connectionString = System.Environment.GetEnvironmentVariable("BlobConnection");
+            var connectionString = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
             var blobServiceClient = new BlobServiceClient(connectionString);
             var containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
             var blobClient = containerClient.GetBlobClient(blobName);
@@ -126,3 +127,10 @@ public class UploadProductImage
         }
     }
 }
+
+/*Reference List:
+ 
+ Microsoft Learn, 2025. Tutorial: Upload and analyze a file with Azure Functions and Blob Storage. [online] Available at:
+ <https://learn.microsoft.com/en-us/azure/storage/blobs/blob-upload-function-trigger?tabs=azure-portal> [Accessed 1 October 20025].
+
+ */

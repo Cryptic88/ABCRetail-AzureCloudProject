@@ -4,7 +4,6 @@ using System.IO;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using ABCRetail.Models;
 using Azure.Storage.Queues;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,9 +21,10 @@ public class WriteMessageQueue
     public WriteMessageQueue(ILogger<WriteMessageQueue> logger)
     {
         _logger = logger;
-        _connectionString = Environment.GetEnvironmentVariable("connection") ?? throw new InvalidOperationException("Queue connection string not set in environment variables.");
+        _connectionString = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
     }
 
+    //(Microsoft Learn, 2024)
     [Function("WriteMessageQueue")]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
     {
@@ -66,4 +66,7 @@ public class WriteMessageQueue
     }
 }
 
-
+/*Reference List:
+  
+ Microsoft Learn, 2024. Add messages to an Azure Storage queue using Functions. [online] Available at:
+ <https://learn.microsoft.com/en-us/azure/azure-functions/functions-integrate-storage-queue-output-binding?tabs=csharp> [Accessed 2 October 2025]*/

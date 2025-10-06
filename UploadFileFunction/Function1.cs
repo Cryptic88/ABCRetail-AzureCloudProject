@@ -21,7 +21,7 @@ public class UploadToFileShareFunction
 
     [Function("UploadToFileShare")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
         try
         {
@@ -45,6 +45,7 @@ public class UploadToFileShareFunction
                 return bad;
             }
 
+            //(stackoverflow, 2020)
             var reader = new MultipartReader(boundary, req.Body);
             MultipartSection section;
             string fileName = null;
@@ -74,8 +75,8 @@ public class UploadToFileShareFunction
             }
 
             // Upload to Azure File Share
-            string connectionString = Environment.GetEnvironmentVariable("AzureFilesConnectionString");
-            string shareName = Environment.GetEnvironmentVariable("AzureFileShareName");
+            string connectionString = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
+            string shareName = "dummycontracts";
             string directoryName = "dummycontracts";
 
             var serviceClient = new ShareServiceClient(connectionString);
@@ -102,3 +103,6 @@ public class UploadToFileShareFunction
 
 }
 
+/* Reference List: 
+ stackoverflow, 2020. Uploading file to azure file share from azure function app. [online] Available at:
+ <https://stackoverflow.com/questions/64667114/uploading-file-to-azure-file-share-from-azure-function-app> [Accessed 4 October 2025].*/

@@ -15,42 +15,20 @@ namespace ABCRetail
             // Table storage HTTP client
             builder.Services.AddHttpClient<TableStorageFunctionService>(client =>
             {
-                client.BaseAddress = new Uri("http://localhost:7152/api"); // Local function host URL
-            });
-
-            // Register TableStorageFunctionService as a singleton
-            builder.Services.AddSingleton<TableStorageFunctionService>(sp =>
-            {
-                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-                var httpClient = httpClientFactory.CreateClient(nameof(TableStorageFunctionService));
-                return new TableStorageFunctionService(httpClient, "http://localhost:7152/api");
+                client.BaseAddress = new Uri("https://storeintable-amd0eqhbgtfpc4fy.southafricanorth-01.azurewebsites.net/api");
             });
 
             // Blob storage via Azure Functions
             builder.Services.AddHttpClient<BlobFunctionService>(client =>
             {
-                client.BaseAddress = new Uri("http://localhost:7135/api"); // URL of your local Functions host
+                client.BaseAddress = new Uri("https://uploadblob-akdbe9gjehfbcnfz.southafricanorth-01.azurewebsites.net/api");
             });
 
-            // Register BlobFunctionService as a singleton
-            builder.Services.AddSingleton<BlobFunctionService>(sp =>
+            builder.Services.AddHttpClient<QueueFunctionService>(client =>
             {
-                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-                var httpClient = httpClientFactory.CreateClient(nameof(BlobFunctionService));
-                return new BlobFunctionService(httpClient, "http://localhost:7135/api"); // Function App URL
+                client.BaseAddress = new Uri("https://processorder-dda4aqf4erf6b8fh.southafricanorth-01.azurewebsites.net/api/");
             });
-
-
-            // Add HttpClient for QueueFunctionService
-            builder.Services.AddHttpClient<QueueFunctionService>();
-
-            // Add QueueFunctionService with base URL from appsettings.json
-            builder.Services.AddSingleton(sp =>
-            {
-                var httpClient = sp.GetRequiredService<HttpClient>();
-                var functionUrl = builder.Configuration["QueueFunctionUrl"]; // put the function URL in appsettings.json
-                return new QueueFunctionService(httpClient, functionUrl);
-            });
+            builder.Services.AddSingleton<QueueFunctionService>();
 
             builder.Services.AddHttpClient<AzureFileShareService>();
 
