@@ -1,3 +1,5 @@
+using ABCRetail.Data;
+using Microsoft.EntityFrameworkCore;
 using ABCRetail.Services;
 
 namespace ABCRetail
@@ -7,6 +9,17 @@ namespace ABCRetail
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromHours(1);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+            builder.Services.AddDbContext<ABCRetailDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("ABCRetailSQL")));
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
@@ -53,6 +66,8 @@ namespace ABCRetail
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseSession();
 
             app.UseAuthorization();
 

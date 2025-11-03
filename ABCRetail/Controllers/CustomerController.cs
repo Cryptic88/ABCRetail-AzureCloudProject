@@ -14,6 +14,11 @@ namespace ABCRetail.Controllers
         }
         public async Task<IActionResult> IndexAsync(string searchString)
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
             var customer = await _tableStorageService.GetAllCustomersAsync();
             //Add on for a search function just to make it easier to find products
             if (!string.IsNullOrWhiteSpace(searchString))
@@ -55,12 +60,22 @@ namespace ABCRetail.Controllers
         [HttpGet]
         public IActionResult AddCustomer()
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
             return View();
         }
 
         [HttpGet]
         public async Task<IActionResult> Details(string partitionKey, string rowKey)
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
             if (partitionKey == null || rowKey == null) return NotFound();
 
             var customer = await _tableStorageService.GetCustomerAsync(partitionKey, rowKey);
@@ -73,6 +88,11 @@ namespace ABCRetail.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(string partitionKey, string rowKey)
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
             if (partitionKey == null || rowKey == null) return NotFound();
 
             var customer = await _tableStorageService.GetCustomerAsync(partitionKey, rowKey);

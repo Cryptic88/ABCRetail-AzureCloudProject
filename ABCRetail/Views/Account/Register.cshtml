@@ -1,0 +1,40 @@
+﻿@model ABCRetail.Models.CustomerSql
+
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Create Your Account</h1>
+        <p>Join ABCRetail and start shopping today!</p>
+
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                @TempData["Message"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <form asp-action="Register" method="post" class="mt-4 d-flex flex-column gap-3" style="max-width: 450px; margin: 0 auto;">
+            <input asp-for="Name" class="form-control form-control-lg shadow-sm" placeholder="Full Name" required />
+            <input asp-for="Email" type="email" class="form-control form-control-lg shadow-sm" placeholder="Email" required />
+            <input asp-for="PasswordHash" type="password" class="form-control form-control-lg shadow-sm" placeholder="Password" required />
+            <input asp-for="Address" class="form-control form-control-lg shadow-sm" placeholder="Address" />
+            <input asp-for="Phone" class="form-control form-control-lg shadow-sm" placeholder="Phone Number" />
+
+            <button type="submit" class="btn btn-success btn-lg shadow-sm add-product-btn">
+                Register
+            </button>
+
+            <p class="text-white mt-2 text-center">
+                Already have an account? <a asp-action="Login" class="text-warning">Login</a>
+            </p>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Welcome Back!</h1>
+        <p>Login to access your ABCRetail account</p>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <form asp-action="Login" method="post" class="mt-4 d-flex flex-column gap-3" style="max-width: 400px; margin: 0 auto;">
+            <input type="email" name="email" class="form-control form-control-lg shadow-sm" placeholder="Email" required />
+            <input type="password" name="password" class="form-control form-control-lg shadow-sm" placeholder="Password" required />
+
+            <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                Login
+            </button>
+            <p class="text-white mt-2 text-center">Don't have an account? <a asp-action="Register" class="text-warning">Register</a></p>
+        </form>
+    </div>
+</div>

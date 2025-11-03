@@ -1,0 +1,74 @@
+﻿@model IEnumerable<ABCRetail.Models.Product>
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="container my-4">
+
+    <div class="p-4 mb-4 bg-light rounded-4 shadow-sm">
+        <h2 class="fw-bold display-6 mb-2">Products</h2>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mb-3">
+            <div class="d-flex flex-column flex-md-row gap-2 w-100 w-md-auto">
+                <!-- Search Form -->
+                <form asp-action="Index" method="get" class="d-flex gap-2 flex-grow-1 flex-md-auto">
+                    <input type="text" name="searchString" class="form-control shadow-sm" style="height: 50px; border-radius: 50px;"
+                           value="@ViewBag.SearchString" placeholder="Search by name" />
+                    <button type="submit" class="btn btn-primary shadow-sm search-btn rounded-pill w-80">
+                        <i class="bi bi-search me-2"></i> Search
+                    </button>
+                    @if (!string.IsNullOrEmpty(ViewBag.SearchString as string))
+                    {
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary shadow-sm d-flex justify-content-center align-items-center"
+                           style="height: 50px; border-radius: 50px;">
+                            <i class="bi bi-x-circle me-2"></i> Clear
+                        </a>
+                    }
+                </form>
+
+                <a asp-controller="Cart" asp-action="Index" class="btn btn-warning shadow-sm btn-lg ms-md-2">
+                    <i class="bi bi-cart"></i> View Cart
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var product in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    @if (!string.IsNullOrEmpty(product.ImageURL))
+                    {
+                        <img src="@product.ImageURL" class="card-img-top" alt="@product.Product_Name"
+                             style="height: 200px; object-fit: cover;">
+                    }
+
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Product_Name</h5>
+                        <p class="card-text"><strong>Description:</strong> @product.Description</p>
+                        <p class="card-text"><strong>Price: R</strong> @product.Price</p>
+                    </div>
+
+                    <div class="p-2 text-center">
+                        <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                            <input type="hidden" name="productId" value="@product.Product_ID" />
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-cart-plus me-2"></i> Add to Cart
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+

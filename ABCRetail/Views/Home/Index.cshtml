@@ -3,6 +3,18 @@
     ViewData["Title"] = "Home";
 }
 
+@if (ViewBag.CustomerName != null)
+{
+    <div class="alert alert-success text-center">
+        Welcome, @ViewBag.CustomerName!
+    </div>
+}
+else
+{
+    <div class="alert alert-warning text-center">
+        You are not logged in.
+    </div>
+}
 <!--(Stackoverflow, 2019)-->
 <section class="hero-section">
     <div class="hero-content text-center">
@@ -37,7 +49,7 @@
                                 <p class="card-text text-muted">@product.Description</p>
                             </div>
 
-                            <a asp-action="PlaceOrder" asp-controller="Orders" asp-route-id="@product.Product_ID"
+                            <a asp-action="Index" asp-controller="Cart" asp-route-id="@product.Product_ID"
                                class="btn btn-outline-primary mt-2 w-100">
                                 <i class="bi bi-cart-plus"></i> Place Order
                             </a>

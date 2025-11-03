@@ -1,0 +1,90 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using ABCRetail.Models;
+using ABCRetail.Services;
+using System.Text.Json;
+
+namespace ABCRetail.Controllers
+{
+    public class CartController : Controller
+    {
+        private const string SessionKeyCart = "_Cart";
+        private readonly TableStorageFunctionService _tableStorageService;
+
+        public CartController(TableStorageFunctionService tableStorageService)
+        {
+            _tableStorageService = tableStorageService;
+        }
+
+        // GET: /Cart
+        public IActionResult Index()
+        {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
+            var cart = GetCartFromSession();
+            return View(cart);
+        }
+
+        // POST: /Cart/AddToCart
+        [HttpPost]
+        public async Task<IActionResult> AddToCart(string productId, int quantity = 1)
+        {
+            var cart = GetCartFromSession();
+
+            // Get product from table storage
+            var allProducts = await _tableStorageService.GetAllProductsAsync();
+            var product = allProducts.FirstOrDefault(p => p.Product_ID == productId);
+            if (product == null)
+            {
+                TempData["Message"] = "Product not found!";
+                return RedirectToAction("Index", "CustomerProduct");
+            }
+
+            // Check if product already in cart
+            var item = cart.FirstOrDefault(i => i.Product.Product_ID == productId);
+            if (item != null)
+                item.Quantity += quantity;
+            else
+                cart.Add(new CartItem { Product = product, Quantity = quantity });
+
+            SaveCartToSession(cart);
+            TempData["Message"] = "Product added to cart!";
+            return RedirectToAction("Index", "CustomerProduct");
+        }
+
+        // POST: /Cart/Remove
+        [HttpPost]
+        public IActionResult Remove(string productId)
+        {
+            var cart = GetCartFromSession();
+            cart.RemoveAll(i => i.Product.Product_ID == productId);
+            SaveCartToSession(cart);
+            return RedirectToAction("Index");
+        }
+
+        // Clear entire cart
+        public IActionResult Clear()
+        {
+            HttpContext.Session.Remove(SessionKeyCart);
+            return RedirectToAction("Index");
+        }
+
+        // Helpers
+        private List<CartItem> GetCartFromSession()
+        {
+            var sessionData = HttpContext.Session.GetString(SessionKeyCart);
+            return string.IsNullOrEmpty(sessionData)
+                ? new List<CartItem>()
+                : JsonSerializer.Deserialize<List<CartItem>>(sessionData);
+        }
+
+        private void SaveCartToSession(List<CartItem> cart)
+        {
+            var sessionData = JsonSerializer.Serialize(cart);
+            HttpContext.Session.SetString(SessionKeyCart, sessionData);
+        }
+    }
+}
+

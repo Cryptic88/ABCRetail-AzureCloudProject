@@ -14,8 +14,36 @@ namespace ABCRetail.Controllers
             _blobService = blobService;
             _tableStorageService = tableStorageService;
         }
+
+        [HttpGet]
+        public async Task<IActionResult> CustomerIndex(string searchString)
+        {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
+            var products = await _tableStorageService.GetAllProductsAsync();
+
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                products = products.Where(p => !string.IsNullOrEmpty(p.Product_Name) &&
+                                               p.Product_Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                                   .ToList();
+            }
+
+            ViewBag.SearchString = searchString ?? "";
+
+            return View(products);
+        }
+
         public async Task<IActionResult> Index(string searchString)
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
             var products = await _tableStorageService.GetAllProductsAsync();
 
             //Add on for a search function just to make it easier to find products
@@ -33,6 +61,11 @@ namespace ABCRetail.Controllers
         [HttpGet]
         public IActionResult AddProduct()
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
             return View();
         }
 
@@ -84,6 +117,12 @@ namespace ABCRetail.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(string partitionKey, string rowKey)
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
+
             if (string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey))
             {
                 return NotFound();
@@ -133,6 +172,11 @@ namespace ABCRetail.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(string partitionKey, string rowKey)
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
             if (string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey))
                 return NotFound();
 

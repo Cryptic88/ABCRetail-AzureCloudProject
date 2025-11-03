@@ -1,10 +1,12 @@
 using System.Diagnostics;
 using ABCRetail.Models;
 using ABCRetail.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ABCRetail.Controllers
 {
+    [AllowAnonymous]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -22,6 +24,19 @@ namespace ABCRetail.Controllers
             var allProducts = await _tableStorageService.GetAllProductsAsync();
 
             var featuredProducts = allProducts.Take(3).ToList();
+
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            var customerName = HttpContext.Session.GetString("CustomerName");
+
+            if (customerId != null)
+            {
+                ViewBag.CustomerName = customerName;
+                ViewBag.Message = $"Logged in as {customerName} (ID: {customerId})";
+            }
+            else
+            {
+                ViewBag.Message = "Not logged in";
+            }
 
             return View(featuredProducts);
         }

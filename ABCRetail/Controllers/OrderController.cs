@@ -18,6 +18,11 @@ namespace ABCRetail.Controllers
         }
         public async Task<IActionResult> Index()
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
             var orders = await _tableStorageService.GetAllOrdersAsync();
             var customers = await _tableStorageService.GetAllCustomersAsync();
             var products = await _tableStorageService.GetAllProductsAsync();
@@ -31,6 +36,11 @@ namespace ABCRetail.Controllers
         [HttpGet]
         public async Task<IActionResult> PlaceOrder()
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
             var customers = await _tableStorageService.GetAllCustomersAsync();
             var products = await _tableStorageService.GetAllProductsAsync();
 
@@ -137,6 +147,11 @@ namespace ABCRetail.Controllers
         [HttpGet]
         public async Task<IActionResult> GetNotifications()
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
             var orders = await _tableStorageService.GetAllOrdersAsync(); // last 10 orders
             var notifications = orders.Select(o => $"New Order: {o.RowKey}, Customer: {o.Customer_Id}, Product: {o.Product_ID}, Qty: {o.Quantity}");
             return Json(notifications);

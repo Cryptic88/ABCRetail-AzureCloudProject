@@ -15,6 +15,11 @@ namespace ABCRetail.Controllers
         }
         public async Task<IActionResult> Index()
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
             List<FileModel> files;
             try
             {
@@ -55,6 +60,11 @@ namespace ABCRetail.Controllers
         [HttpGet]
         public async Task<IActionResult> DownloadFile(string fileName)
         {
+            // Check if customer is logged in
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
             if (string.IsNullOrEmpty(fileName))
                 return BadRequest("File name cannot be null or empty");
 
