@@ -27,7 +27,7 @@ else
                 {
                     <tr>
                         <td>
-                            <img src="@item.Product?.ImageURL ?? " /images/placeholder.jpg""
+                            <img src="@(item.Product?.ImageURL ?? "/images/placeholder.jpg")"
                                  alt="@item.Product?.Product_Name"
                                  style="height:60px; width:60px; object-fit:cover;" />
                         </td>
@@ -49,6 +49,11 @@ else
 
     <div class="mt-3 d-flex justify-content-between">
         <a asp-action="Clear" class="btn btn-warning">Clear Cart</a>
-        <a asp-action="Checkout" class="btn btn-success">Proceed to Checkout</a>
+
+        <form asp-controller="Order" asp-action="PlaceOrderFromCartConfirmed" method="post" class="d-inline">
+            <button type="submit" class="btn btn-success">Place Order</button>
+        </form>
+
     </div>
+
 }

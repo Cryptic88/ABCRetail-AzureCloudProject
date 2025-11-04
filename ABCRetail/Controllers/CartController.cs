@@ -31,6 +31,9 @@ namespace ABCRetail.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart(string productId, int quantity = 1)
         {
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
             var cart = GetCartFromSession();
 
             // Get product from table storage
@@ -39,7 +42,7 @@ namespace ABCRetail.Controllers
             if (product == null)
             {
                 TempData["Message"] = "Product not found!";
-                return RedirectToAction("Index", "CustomerProduct");
+                return RedirectToAction("CustomerIndex", "Product");
             }
 
             // Check if product already in cart
@@ -51,7 +54,7 @@ namespace ABCRetail.Controllers
 
             SaveCartToSession(cart);
             TempData["Message"] = "Product added to cart!";
-            return RedirectToAction("Index", "CustomerProduct");
+            return RedirectToAction("CustomerIndex", "Product");
         }
 
         // POST: /Cart/Remove

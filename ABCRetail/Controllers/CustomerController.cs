@@ -1,17 +1,24 @@
-﻿using ABCRetail.Models;
+﻿using ABCRetail.Data;
+using ABCRetail.Filters;
+using ABCRetail.Models;
 using ABCRetail.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ABCRetail.Controllers
 {
     public class CustomerController : Controller
     {
         private readonly TableStorageFunctionService _tableStorageService;
+        private readonly ABCRetailDbContext _db;
 
-        public CustomerController(TableStorageFunctionService tableStorageService)
+        public CustomerController(TableStorageFunctionService tableStorageService, ABCRetailDbContext db)
         {
             _tableStorageService = tableStorageService;
+            _db = db;
         }
+
+        [AdminAuthorize]
         public async Task<IActionResult> IndexAsync(string searchString)
         {
             // Check if customer is logged in
@@ -32,6 +39,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpPost]
+        [AdminAuthorize]
         public async Task<IActionResult> AddCustomer(Customer customer)
         {
             if (string.IsNullOrWhiteSpace(customer.Customer_Name))
@@ -58,6 +66,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpGet]
+        [AdminAuthorize]
         public IActionResult AddCustomer()
         {
             // Check if customer is logged in
@@ -69,6 +78,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpGet]
+        [AdminAuthorize]
         public async Task<IActionResult> Details(string partitionKey, string rowKey)
         {
             // Check if customer is logged in
@@ -86,6 +96,7 @@ namespace ABCRetail.Controllers
 
         
         [HttpGet]
+        [AdminAuthorize]
         public async Task<IActionResult> Edit(string partitionKey, string rowKey)
         {
             // Check if customer is logged in
@@ -104,6 +115,7 @@ namespace ABCRetail.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AdminAuthorize]
         public async Task<IActionResult> Edit(Customer updatedCustomer)
         {
             if (!ModelState.IsValid)
@@ -128,6 +140,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpPost]
+        [AdminAuthorize]
         public async Task<IActionResult> DeleteCustomer(string partitionKey, string rowKey)
         {
             if (string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey))
@@ -140,6 +153,59 @@ namespace ABCRetail.Controllers
 
             TempData["Success"] = "Customer deleted successfully!";
             return RedirectToAction("Index");
+        }
+
+        // GET: Customer Dashboard
+        public async Task<IActionResult> CustomerIndex()
+        {
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
+                return RedirectToAction("Login", "Account");
+
+            // Fetch logged-in customer only
+            var customer = await _db.Customer.FirstOrDefaultAsync(c => c.CustomerId == customerId.Value);
+            if (customer == null) return NotFound();
+
+            return View(customer); // Pass a single customer to the view
+        }
+
+        // GET: Edit customer details
+        [HttpGet]
+        public async Task<IActionResult> CustomerEdit()
+        {
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null) return RedirectToAction("Login", "Account");
+
+            var customer = await _db.Customer.FirstOrDefaultAsync(c => c.CustomerId == customerId.Value);
+            if (customer == null) return NotFound();
+
+            return View(customer);
+        }
+
+        // POST: Update customer details
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CustomerEdit(Customer updatedCustomer)
+        {
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null) return RedirectToAction("Login", "Account");
+
+            var customer = await _db.Customer.FirstOrDefaultAsync(c => c.CustomerId == customerId.Value);
+            if (customer == null) return NotFound();
+
+            if (!ModelState.IsValid) return View(updatedCustomer);
+
+            // Update fields
+            customer.Name = updatedCustomer.Customer_Name;
+            customer.Email = updatedCustomer.email;
+            if (!string.IsNullOrWhiteSpace(updatedCustomer.password))
+            {
+                customer.PasswordHash = updatedCustomer.password; // Update password only if provided
+            }
+
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Your details were updated successfully!";
+            return RedirectToAction(nameof(CustomerIndex));
         }
     }
 }

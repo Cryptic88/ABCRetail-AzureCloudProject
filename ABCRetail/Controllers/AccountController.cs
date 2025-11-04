@@ -87,6 +87,7 @@ namespace ABCRetail.Controllers
             // Store customer ID in session
             HttpContext.Session.SetInt32("CustomerId", customer.CustomerId);
             HttpContext.Session.SetString("CustomerName", customer.Name);
+            HttpContext.Session.SetString("IsAdmin", customer.IsAdmin ? "true" : "false");
 
             // Redirect to Home after login
             return RedirectToAction("CustomerIndex", "Product");

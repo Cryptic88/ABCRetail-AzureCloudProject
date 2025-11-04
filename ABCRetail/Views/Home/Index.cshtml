@@ -49,11 +49,16 @@ else
                                 <p class="card-text text-muted">@product.Description</p>
                             </div>
 
-                            <a asp-action="Index" asp-controller="Cart" asp-route-id="@product.Product_ID"
-                               class="btn btn-outline-primary mt-2 w-100">
-                                <i class="bi bi-cart-plus"></i> Place Order
-                            </a>
+                            <!-- Form to add product to cart -->
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mt-2 w-100">
+                                <input type="hidden" name="productId" value="@product.Product_ID" />
+                                <input type="hidden" name="quantity" value="1" />
+                                <button type="submit" class="btn btn-outline-primary w-100">
+                                    <i class="bi bi-cart-plus"></i> Add to Cart
+                                </button>
+                            </form>
                         </div>
+
                     </a>
                 </div>
             </div>

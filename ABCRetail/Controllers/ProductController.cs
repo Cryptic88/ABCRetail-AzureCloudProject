@@ -1,4 +1,5 @@
-﻿using ABCRetail.Models;
+﻿using ABCRetail.Filters;
+using ABCRetail.Models;
 using ABCRetail.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,6 +38,7 @@ namespace ABCRetail.Controllers
             return View(products);
         }
 
+        [AdminAuthorize]
         public async Task<IActionResult> Index(string searchString)
         {
             // Check if customer is logged in
@@ -59,6 +61,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpGet]
+        [AdminAuthorize]
         public IActionResult AddProduct()
         {
             // Check if customer is logged in
@@ -70,6 +73,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpPost]
+        [AdminAuthorize]
         public async Task<IActionResult> AddProduct(Product product, IFormFile file)
         {
             // Manual validation
@@ -103,6 +107,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpPost]
+        [AdminAuthorize]
         public async Task<IActionResult> DeleteProduct(string partitionKey, string rowKey)
         {
             var product = await _tableStorageService.GetProductAsync(partitionKey, rowKey);
@@ -114,7 +119,9 @@ namespace ABCRetail.Controllers
             await _tableStorageService.DeleteProductAsync(partitionKey, rowKey);
             return RedirectToAction("Index");
         }
+
         [HttpGet]
+        [AdminAuthorize]
         public async Task<IActionResult> Edit(string partitionKey, string rowKey)
         {
             // Check if customer is logged in
@@ -138,6 +145,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpPost]
+        [AdminAuthorize]
         public async Task<IActionResult> Edit(Product product, IFormFile? file)
         {
             if (ModelState.IsValid)
@@ -170,6 +178,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpGet]
+        [AdminAuthorize]
         public async Task<IActionResult> Details(string partitionKey, string rowKey)
         {
             // Check if customer is logged in

@@ -12,7 +12,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
             <div class="container">
                 <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
                     <i class="bi bi-shop"></i> ABCRetail
@@ -24,18 +24,47 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Login</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Sign Up</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Customer" asp-action="Index">Customers</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Product" asp-action="Index">Products</a></li>
-						<li class="nav-item"><a class="nav-link" asp-controller="Order" asp-action="Index">Orders</a></li>
-						<li class="nav-item"><a class="nav-link" asp-controller="File" asp-action="Index">Contracts</a></li>
-							
+
+                        @if (Context.Session.GetInt32("CustomerId") != null)
+                        {
+                            var isAdmin = Context.Session.GetString("IsAdmin") == "true";
+                            var name = Context.Session.GetString("CustomerName") ?? "User";
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    @name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    @if (isAdmin)
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="Customer" asp-action="Index">Manage Customers</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Product" asp-action="Index">Manage Products</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Order" asp-action="Index">Manage Orders</a></li>
+                                        <li><a class="dropdown-item" asp-controller="File" asp-action="Index">Manage Contracts</a></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="Product" asp-action="CustomerIndex">Shop Products</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Cart" asp-action="Index">My Cart</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Order" asp-action="CustomerIndex">My Orders</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Customer" asp-action="CustomerIndex">My Account</a></li>
+                                    }
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">Logout</a></li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Login</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Sign Up</a></li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

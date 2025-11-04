@@ -1,5 +1,6 @@
 ﻿using ABCRetail.Models;
 using ABCRetail.Services;
+using ABCRetail.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ABCRetail.Controllers
@@ -13,6 +14,8 @@ namespace ABCRetail.Controllers
         {
             _fileShareService = fileShareService;
         }
+
+        [AdminAuthorize]
         public async Task<IActionResult> Index()
         {
             // Check if customer is logged in
@@ -34,6 +37,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpPost]
+        [AdminAuthorize]
         public async Task<IActionResult> Upload(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -58,6 +62,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpGet]
+        [AdminAuthorize]
         public async Task<IActionResult> DownloadFile(string fileName)
         {
             // Check if customer is logged in
