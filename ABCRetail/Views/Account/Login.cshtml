@@ -2,27 +2,59 @@
     ViewData["Title"] = "Login";
 }
 
-<div class="hero-section">
-    <div class="hero-content">
-        <h1>Welcome Back!</h1>
-        <p>Login to access your ABCRetail account</p>
+<div class="login-fullscreen">
+    <div class="container-fluid">
+        <div class="login-container">
+            <div class="login-left">
+                <h1 class="title">Login to Your Account</h1>
+                <p class="subtitle">Access your ABCRetail dashboard</p>
 
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-                @TempData["Error"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <form asp-action="Login" method="post" class="login-form">
+                    <input type="email" name="email" class="form-control form-control-lg shadow-sm"
+                           placeholder="Email" required />
+
+                    <div class="password-wrapper">
+                        <input type="password" name="password" class="form-control form-control-lg shadow-sm"
+                               placeholder="Password" required />
+                        <i class="bi bi-eye password-toggle"></i>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg shadow-sm login-btn">Sign In</button>
+                </form>
             </div>
-        }
 
-        <form asp-action="Login" method="post" class="mt-4 d-flex flex-column gap-3" style="max-width: 400px; margin: 0 auto;">
-            <input type="email" name="email" class="form-control form-control-lg shadow-sm" placeholder="Email" required />
-            <input type="password" name="password" class="form-control form-control-lg shadow-sm" placeholder="Password" required />
-
-            <button type="submit" class="btn btn-primary btn-lg shadow-sm">
-                Login
-            </button>
-            <p class="text-white mt-2 text-center">Don't have an account? <a asp-action="Register" class="text-warning">Register</a></p>
-        </form>
+            <div class="login-right">
+                <h2 class="welcome-title">New Here?</h2>
+                <p class="welcome-subtitle">Sign up and discover many new opportunities!</p>
+                <a asp-action="Register" class="btn btn-outline-light btn-lg signup-btn">Sign Up</a>
+            </div>
+        </div>
     </div>
 </div>
+
+
+@section Scripts {
+    <script>
+        document.querySelector(".password-toggle")?.addEventListener("click", function () {
+            const input = this.previousElementSibling;
+
+            if (input.type === "password") {
+                input.type = "text";
+                this.classList.remove("bi-eye");
+                this.classList.add("bi-eye-slash"); // changes icon when viewing
+            } else {
+                input.type = "password";
+                this.classList.remove("bi-eye-slash");
+                this.classList.add("bi-eye"); // changes icon back
+            }
+        });
+    </script>
+}

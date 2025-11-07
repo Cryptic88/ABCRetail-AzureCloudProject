@@ -1,40 +1,83 @@
 ﻿@model ABCRetail.Models.CustomerSql
+@{
+    ViewData["Title"] = "Register";
+}
 
-<div class="hero-section">
-    <div class="hero-content">
-        <h1>Create Your Account</h1>
-        <p>Join ABCRetail and start shopping today!</p>
+<div class="register-fullscreen">
 
-        @if (TempData["Message"] != null)
-        {
-            <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-                @TempData["Message"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        }
+    <div class="register-container">
 
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-                @TempData["Error"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        }
+        <!-- LEFT FORM SIDE -->
+        <div class="register-left">
+            <h1 class="title">Create an account</h1>
+            <p class="subtitle">Join ABCRetail and start shopping!</p>
 
-        <form asp-action="Register" method="post" class="mt-4 d-flex flex-column gap-3" style="max-width: 450px; margin: 0 auto;">
-            <input asp-for="Name" class="form-control form-control-lg shadow-sm" placeholder="Full Name" required />
-            <input asp-for="Email" type="email" class="form-control form-control-lg shadow-sm" placeholder="Email" required />
-            <input asp-for="PasswordHash" type="password" class="form-control form-control-lg shadow-sm" placeholder="Password" required />
-            <input asp-for="Address" class="form-control form-control-lg shadow-sm" placeholder="Address" />
-            <input asp-for="Phone" class="form-control form-control-lg shadow-sm" placeholder="Phone Number" />
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                    @TempData["Message"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
 
-            <button type="submit" class="btn btn-success btn-lg shadow-sm add-product-btn">
-                Register
-            </button>
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
 
-            <p class="text-white mt-2 text-center">
-                Already have an account? <a asp-action="Login" class="text-warning">Login</a>
-            </p>
-        </form>
+            <form asp-action="Register" method="post" class="register-form">
+
+                <input asp-for="Name" class="form-control form-control-lg shadow-sm"
+                       placeholder="Full Name" required />
+
+                <input asp-for="Email" type="email" class="form-control form-control-lg shadow-sm"
+                       placeholder="username@example.com" required />
+
+                <div class="password-wrapper">
+                    <input asp-for="PasswordHash" type="password" class="form-control form-control-lg shadow-sm"
+                           placeholder="Password" required />
+                    <i class="bi bi-eye password-toggle"></i>
+                </div>
+
+                <input asp-for="Address" class="form-control form-control-lg shadow-sm"
+                       placeholder="Address" required />
+
+                <input asp-for="Phone" class="form-control form-control-lg shadow-sm"
+                       placeholder="Phone Number " required />
+
+                <button type="submit" class="btn btn-primary btn-lg shadow-sm register-btn">
+                    Create Account
+                </button>
+            </form>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="register-right">
+            <h2 class="welcome-title">Welcome!</h2>
+            <p class="welcome-subtitle">Manage your shopping, profile and orders — all in one place.</p>
+
+            <a asp-action="Login" class="btn btn-outline-light btn-lg signup-btn">Back to Login</a>
+        </div>
+
     </div>
+
 </div>
+
+@section Scripts {
+    <script>
+        document.querySelector(".password-toggle")?.addEventListener("click", function () {
+            const input = this.previousElementSibling;
+            if (input.type === "password") {
+                input.type = "text";
+                this.classList.replace("bi-eye", "bi-eye-slash");
+            } else {
+                input.type = "password";
+                this.classList.replace("bi-eye-slash", "bi-eye");
+            }
+        });
+    </script>
+}
+
