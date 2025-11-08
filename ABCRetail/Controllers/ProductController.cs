@@ -1,4 +1,5 @@
-﻿using ABCRetail.Filters;
+﻿using ABCRetail.Data;
+using ABCRetail.Filters;
 using ABCRetail.Models;
 using ABCRetail.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -9,11 +10,13 @@ namespace ABCRetail.Controllers
     {
         private readonly BlobFunctionService _blobService;
         private readonly TableStorageFunctionService _tableStorageService;
+        private readonly ABCRetailDbContext _context;
 
-        public ProductController(BlobFunctionService blobService, TableStorageFunctionService tableStorageService)
+        public ProductController(BlobFunctionService blobService, TableStorageFunctionService tableStorageService, ABCRetailDbContext context)
         {
             _blobService = blobService;
             _tableStorageService = tableStorageService;
+            _context = context;
         }
 
         [HttpGet]
@@ -103,6 +106,19 @@ namespace ABCRetail.Controllers
             // Store product
             await _tableStorageService.StoreProductAsync(product);
 
+            // Also store info in SQL DB
+            var productSql = new ProductSql
+            {
+                Name = product.Product_Name,
+                Description = product.Description,
+                ImageUrl = product.ImageURL,
+                Price = product.Price.HasValue ? (decimal)product.Price.Value : 0,
+                StockQty = 10 
+            };
+
+            _context.Product.Add(productSql);
+            await _context.SaveChangesAsync();
+
             return RedirectToAction("Index");
         }
 
@@ -117,6 +133,15 @@ namespace ABCRetail.Controllers
             }
 
             await _tableStorageService.DeleteProductAsync(partitionKey, rowKey);
+
+            var productSql = _context.Product.FirstOrDefault(p => p.Name == product.Product_Name);
+
+            if (productSql != null)
+            {
+                _context.Product.Remove(productSql);
+                await _context.SaveChangesAsync();
+            }
+
             return RedirectToAction("Index");
         }
 
@@ -171,6 +196,20 @@ namespace ABCRetail.Controllers
                 }
 
                 await _tableStorageService.UpdateProductAsync(product);
+
+                // update the SQL db aswell
+                var existingProductSql = _context.Product.FirstOrDefault(p => p.Name == product.Product_Name);
+
+                if (existingProductSql != null)
+                {
+                    existingProductSql.Name = product.Product_Name;
+                    existingProductSql.Description = product.Description;
+                    existingProductSql.ImageUrl = product.ImageURL;
+                    existingProductSql.Price = product.Price.HasValue ? (decimal)product.Price.Value : existingProductSql.Price;
+
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction("Index");
             }
 

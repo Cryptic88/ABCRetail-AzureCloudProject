@@ -119,6 +119,34 @@ namespace ABCRetail.Controllers
             // Only send the properly formatted order to the queue
             await _queueService.SendOrderMessageAsync(order);
 
+            // Get the SQL Product record
+            var productSql = await _dbContext.Product
+                .FirstOrDefaultAsync(p => p.Name == product.Product_Name);
+
+            if (productSql == null)
+                throw new Exception("Product not found in SQL database.");
+
+            // Create SQL Order
+            var orderSql = new OrderSql
+            {
+                CustomerId = int.Parse(customerId),
+                OrderDate = DateTime.UtcNow,
+                Status = "Pending",
+                TotalAmount = productSql.Price * quantity,
+                OrderItems = new List<OrderItemSql>
+                {
+                    new OrderItemSql
+                    {
+                        ProductId = productSql.ProductId,
+                        Quantity = quantity,
+                        UnitPrice = productSql.Price
+                    }
+                }
+            };
+
+            _dbContext.Order.Add(orderSql);
+            await _dbContext.SaveChangesAsync();
+
             TempData["Message"] = "Order placed successfully!";
             return RedirectToAction("Index");
         }
@@ -135,6 +163,7 @@ namespace ABCRetail.Controllers
                 return RedirectToAction("Index");
             }
 
+            // Process order in Table Storage
             bool success = await _tableStorageService.ProcessOrderAsync(rowKey);
 
             if (!success)
@@ -143,16 +172,30 @@ namespace ABCRetail.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Get full order details
-            var order = await _tableStorageService.GetOrderAsync("ORDERS", rowKey);
-            if (order != null)
+            // Get full order details from Table Storage
+            var tableOrder = await _tableStorageService.GetOrderAsync("ORDERS", rowKey);
+            if (tableOrder != null)
             {
-                await _queueService.SendOrderMessageAsync(order);
+                await _queueService.SendOrderMessageAsync(tableOrder);
+
+                // Update corresponding SQL order status
+                var sqlOrder = await _dbContext.Order
+                    .Include(o => o.OrderItems)
+                    .FirstOrDefaultAsync(o =>
+                        o.CustomerId.ToString() == tableOrder.Customer_Id &&
+                        o.OrderDate == tableOrder.OrderDate);
+
+                if (sqlOrder != null)
+                {
+                    sqlOrder.Status = "Processed"; // Match Table Storage status
+                    await _dbContext.SaveChangesAsync();
+                }
             }
 
             TempData["Message"] = $"Order {rowKey} processed successfully!";
             return RedirectToAction("Index");
         }
+
 
         [HttpPost]
         [AdminAuthorize]
@@ -166,8 +209,31 @@ namespace ABCRetail.Controllers
 
             try
             {
-                await _tableStorageService.DeleteOrderAsync(partitionKey, rowKey);
-                TempData["Message"] = "Order cancelled successfully.";
+                // Delete from Table Storage
+                var order = await _tableStorageService.GetOrderAsync(partitionKey, rowKey);
+                if (order != null)
+                {
+                    await _tableStorageService.DeleteOrderAsync(partitionKey, rowKey);
+
+                    // Delete from SQL DB
+                    var sqlOrder = await _dbContext.Order
+                        .Include(o => o.OrderItems)
+                        .FirstOrDefaultAsync(o => o.CustomerId.ToString() == order.Customer_Id
+                                               && o.OrderDate == order.OrderDate);
+
+                    if (sqlOrder != null)
+                    {
+                        _dbContext.OrderItem.RemoveRange(sqlOrder.OrderItems); // delete items first
+                        _dbContext.Order.Remove(sqlOrder); // then delete the order
+                        await _dbContext.SaveChangesAsync();
+                    }
+
+                    TempData["Message"] = "Order cancelled successfully.";
+                }
+                else
+                {
+                    TempData["Error"] = "Order not found.";
+                }
             }
             catch (Exception ex)
             {
@@ -176,6 +242,7 @@ namespace ABCRetail.Controllers
 
             return RedirectToAction("Index");
         }
+
 
         [HttpGet]
         [AdminAuthorize]
@@ -213,12 +280,10 @@ namespace ABCRetail.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PlaceOrderFromCartConfirmed()
         {
-            // Check if customer is logged in
             var customerId = HttpContext.Session.GetInt32("CustomerId");
             if (customerId == null)
                 return RedirectToAction("Login", "Account");
 
-            // Get the customer from the SQL database using your DbContext
             var customer = await _dbContext.Customer
                 .FirstOrDefaultAsync(c => c.CustomerId == customerId.Value);
 
@@ -230,23 +295,22 @@ namespace ABCRetail.Controllers
                 return RedirectToAction("Cart", "Index");
             }
 
-            var cartJson = HttpContext.Session.GetString("_Cart"); // your session key
+            var cartJson = HttpContext.Session.GetString("_Cart");
             if (string.IsNullOrEmpty(cartJson))
             {
                 TempData["Error"] = "Your cart is empty.";
                 return RedirectToAction("Index", "Cart");
             }
 
-            // Deserialize the cart JSON into a list
             var cart = System.Text.Json.JsonSerializer.Deserialize<List<CartItem>>(cartJson);
 
-            // Now create the orders in Table Storage
             foreach (var item in cart)
             {
-                var order = new Order
+                // Create Table Storage order
+                var tableOrder = new Order
                 {
                     Order_ID = Guid.NewGuid().ToString(),
-                    Customer_Id = customer.CustomerId.ToString(), // store as string in Table Storage
+                    Customer_Id = customer.CustomerId.ToString(),
                     Product_ID = item.Product.Product_ID,
                     Quantity = item.Quantity,
                     Status = "Pending",
@@ -255,10 +319,34 @@ namespace ABCRetail.Controllers
                     RowKey = Guid.NewGuid().ToString()
                 };
 
-                await _tableStorageService.AddOrderAsync(order);
-                await _queueService.SendOrderMessageAsync(order);
+                await _tableStorageService.AddOrderAsync(tableOrder);
+                await _queueService.SendOrderMessageAsync(tableOrder);
+
+                // Also create SQL order
+                var sqlOrder = new OrderSql
+                {
+                    CustomerId = customer.CustomerId,
+                    OrderDate = DateTime.UtcNow,
+                    Status = "Pending",
+                    TotalAmount = item.Product.Price.HasValue
+                                    ? item.Product.Price.Value * item.Quantity
+                                    : 0,
+                    OrderItems = new List<OrderItemSql>
+                    {
+                        new OrderItemSql
+                        {
+                            ProductId = int.Parse(item.Product.Product_ID!.Split('-')[1]),
+                            Quantity = item.Quantity,
+                            UnitPrice = item.Product.Price.HasValue ? item.Product.Price.Value : 0
+                        }
+                    }
+                };
+
+                _dbContext.Order.Add(sqlOrder);
             }
 
+            // Save all SQL orders at once
+            await _dbContext.SaveChangesAsync();
 
             // Clear cart after order
             HttpContext.Session.Remove("_Cart");
