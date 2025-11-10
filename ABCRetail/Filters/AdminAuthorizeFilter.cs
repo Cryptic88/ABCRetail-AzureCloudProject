@@ -14,7 +14,7 @@ namespace ABCRetail.Filters
             _db = db;
         }
 
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public void OnAuthorization(AuthorizationFilterContext context) // (Microsoft Learn, 2025)
         {
             var customerId = context.HttpContext.Session.GetInt32("CustomerId");
             if (customerId == null)
@@ -33,3 +33,7 @@ namespace ABCRetail.Filters
     }
 }
 
+/*Refrence List:
+  
+  Microsoft Learn, 2025. Filters in ASP.NET Core. [online] Available at:
+  < https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/filters?view=aspnetcore-9.0 > [Accessed 4 November 2025].*/

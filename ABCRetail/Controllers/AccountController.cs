@@ -17,13 +17,11 @@ namespace ABCRetail.Controllers
         }
 
         [AllowAnonymous]
-        // GET: /Account/Register
         public IActionResult Register()
         {
             return View();
         }
 
-        // POST: /Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Register(CustomerSql model)
@@ -56,13 +54,11 @@ namespace ABCRetail.Controllers
         }
 
         [AllowAnonymous]
-        // GET: /Account/Login
         public IActionResult Login()
         {
             return View();
         }
 
-        // POST: /Account/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Login(string email, string password)
@@ -85,6 +81,7 @@ namespace ABCRetail.Controllers
             }
 
             // Store customer ID in session
+            // (Gudmestad, 2024)
             HttpContext.Session.SetInt32("CustomerId", customer.CustomerId);
             HttpContext.Session.SetString("CustomerName", customer.Name);
             HttpContext.Session.SetString("IsAdmin", customer.IsAdmin ? "true" : "false");
@@ -94,6 +91,7 @@ namespace ABCRetail.Controllers
         }
         private string HashPassword(string password)
         {
+            //(Chand, 2023)
             using var sha = SHA256.Create();
             var bytes = Encoding.UTF8.GetBytes(password);
             var hash = sha.ComputeHash(bytes);
@@ -107,3 +105,11 @@ namespace ABCRetail.Controllers
         }
     }
 }
+
+/*Reference List:
+  
+  Gudmestad, E., 2024. Tutorial - ASP.NET MVC Sessions. [video online] Available at:
+  < https://www.youtube.com/watch?v=tsyTnFRnooo > [Accessed 3 November 2025].
+
+  Chand, M., 2023. Compute SHA256 Hash In C#. [online] Available at:
+  < https://www.c-sharpcorner.com/article/compute-sha256-hash-in-c-sharp/ > [Accessed 3 November 2025].*/

@@ -7,6 +7,7 @@ namespace ABCRetail.Controllers
 {
     public class CartController : Controller
     {
+        //(Gudmesatd, 2024)
         private const string SessionKeyCart = "_Cart";
         private readonly TableStorageFunctionService _tableStorageService;
 
@@ -15,10 +16,10 @@ namespace ABCRetail.Controllers
             _tableStorageService = tableStorageService;
         }
 
-        // GET: /Cart
         public IActionResult Index()
         {
             // Check if customer is logged in
+            // (Gudmestad, 2024)
             var customerId = HttpContext.Session.GetInt32("CustomerId");
             if (customerId == null)
                 return RedirectToAction("Login", "Account");
@@ -27,10 +28,10 @@ namespace ABCRetail.Controllers
             return View(cart);
         }
 
-        // POST: /Cart/AddToCart
         [HttpPost]
         public async Task<IActionResult> AddToCart(string productId, int quantity = 1)
         {
+            //(Gudmestad, 2024)
             var customerId = HttpContext.Session.GetInt32("CustomerId");
             if (customerId == null)
                 return RedirectToAction("Login", "Account");
@@ -57,7 +58,6 @@ namespace ABCRetail.Controllers
             return RedirectToAction("CustomerIndex", "Product");
         }
 
-        // POST: /Cart/Remove
         [HttpPost]
         public IActionResult Remove(string productId)
         {
@@ -77,6 +77,7 @@ namespace ABCRetail.Controllers
         // Helpers
         private List<CartItem> GetCartFromSession()
         {
+            //(Gudmestad, 2024)
             var sessionData = HttpContext.Session.GetString(SessionKeyCart);
             return string.IsNullOrEmpty(sessionData)
                 ? new List<CartItem>()
@@ -85,9 +86,14 @@ namespace ABCRetail.Controllers
 
         private void SaveCartToSession(List<CartItem> cart)
         {
+            //(Gudmestad, 2024)
             var sessionData = JsonSerializer.Serialize(cart);
             HttpContext.Session.SetString(SessionKeyCart, sessionData);
         }
     }
 }
 
+/*Reference List:
+  
+  Gudmestad, E., 2024. Tutorial - ASP.NET MVC Sessions. [video online] Available at:
+  < https://www.youtube.com/watch?v=tsyTnFRnooo > [Accessed 3 November 2025].*/

@@ -41,7 +41,7 @@ namespace ABCRetail.Controllers
             return View(products);
         }
 
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> Index(string searchString)
         {
             // Check if customer is logged in
@@ -239,4 +239,9 @@ namespace ABCRetail.Controllers
 /*Refrence List:
  stackoverflow, 2020. Is there any way to get the first 5 characters of a GUID?. [online] Available at:
  https://stackoverflow.com/questions/61124190/is-there-any-way-to-get-the-first-5-characters-of-a-guid
- [Accessed 15 August 2025].*/
+ [Accessed 15 August 2025].
+  
+ Microsoft Learn, 2025. Filters in ASP.NET Core. [online] Available at:
+ < https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/filters?view=aspnetcore-9.0 > 
+ [Accessed 4 November 2025].
+*/

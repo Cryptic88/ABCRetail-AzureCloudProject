@@ -13,10 +13,10 @@ namespace ABCRetail
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromHours(1);
+                options.IdleTimeout = TimeSpan.FromMinutes(10);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
-            });
+            }); //(Gudmestad, 2024)
 
             builder.Services.AddDbContext<ABCRetailDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("ABCRetailSQL")));
@@ -79,3 +79,8 @@ namespace ABCRetail
         }
     }
 }
+
+/*Reference List:
+ 
+ Gudmestad, E., 2024. Tutorial - ASP.NET MVC Sessions. [video online] Available at:
+ < https://www.youtube.com/watch?v=tsyTnFRnooo > [Accessed 3 November 2025].*/

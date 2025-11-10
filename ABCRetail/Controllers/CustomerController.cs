@@ -18,7 +18,7 @@ namespace ABCRetail.Controllers
             _db = db;
         }
 
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> IndexAsync(string searchString)
         {
             // Check if customer is logged in
@@ -140,7 +140,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpPost]
-        [AdminAuthorize]
+        [AdminAuthorize] 
         public async Task<IActionResult> DeleteCustomer(string partitionKey, string rowKey)
         {
             if (string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey))
@@ -155,7 +155,6 @@ namespace ABCRetail.Controllers
             return RedirectToAction("Index");
         }
 
-        // GET: Customer Dashboard
         public async Task<IActionResult> CustomerIndex()
         {
             var customerId = HttpContext.Session.GetInt32("CustomerId");
@@ -169,7 +168,6 @@ namespace ABCRetail.Controllers
             return View(customer); // Pass a single customer to the view
         }
 
-        // GET: Edit customer details
         [HttpGet]
         public async Task<IActionResult> CustomerEdit()
         {
@@ -182,7 +180,6 @@ namespace ABCRetail.Controllers
             return View(customer);
         }
 
-        // POST: Update customer details
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CustomerEdit(Customer updatedCustomer)
@@ -211,7 +208,11 @@ namespace ABCRetail.Controllers
 }
 /*Refrence List:
  stackoverflow, 2017. How to use Guid without alphabet (selenium c#). [online] Available at:
- https://stackoverflow.com/questions/47473815/how-to-use-guid-without-alphabet-selenium-c
+ < https://stackoverflow.com/questions/47473815/how-to-use-guid-without-alphabet-selenium-c >
  [Accessed 15 August 2025].
+  
+ Microsoft Learn, 2025. Filters in ASP.NET Core. [online] Available at:
+ < https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/filters?view=aspnetcore-9.0 > 
+ [Accessed 4 November 2025].
 
 */
