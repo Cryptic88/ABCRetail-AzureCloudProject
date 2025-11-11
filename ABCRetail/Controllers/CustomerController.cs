@@ -66,7 +66,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpGet]
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public IActionResult AddCustomer()
         {
             // Check if customer is logged in
@@ -78,7 +78,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpGet]
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> Details(string partitionKey, string rowKey)
         {
             // Check if customer is logged in
@@ -96,7 +96,7 @@ namespace ABCRetail.Controllers
 
         
         [HttpGet]
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> Edit(string partitionKey, string rowKey)
         {
             // Check if customer is logged in
@@ -115,7 +115,7 @@ namespace ABCRetail.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> Edit(Customer updatedCustomer)
         {
             if (!ModelState.IsValid)
@@ -140,7 +140,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpPost]
-        [AdminAuthorize] 
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> DeleteCustomer(string partitionKey, string rowKey)
         {
             if (string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey))

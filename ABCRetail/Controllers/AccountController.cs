@@ -16,7 +16,7 @@ namespace ABCRetail.Controllers
             _db = db;
         }
 
-        [AllowAnonymous]
+        [AllowAnonymous] //(Microsoft Learn, 2025)
         public IActionResult Register()
         {
             return View();
@@ -53,7 +53,7 @@ namespace ABCRetail.Controllers
             return View(model);
         }
 
-        [AllowAnonymous]
+        [AllowAnonymous] //(Microsoft Learn, 2025)
         public IActionResult Login()
         {
             return View();
@@ -100,6 +100,7 @@ namespace ABCRetail.Controllers
 
         public IActionResult Logout()
         {
+            //(Kalla, 2024)
             HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
@@ -112,4 +113,10 @@ namespace ABCRetail.Controllers
   < https://www.youtube.com/watch?v=tsyTnFRnooo > [Accessed 3 November 2025].
 
   Chand, M., 2023. Compute SHA256 Hash In C#. [online] Available at:
-  < https://www.c-sharpcorner.com/article/compute-sha256-hash-in-c-sharp/ > [Accessed 3 November 2025].*/
+  < https://www.c-sharpcorner.com/article/compute-sha256-hash-in-c-sharp/ > [Accessed 3 November 2025].
+
+  Kalla, M., 2024. ASP.NET Core Session Management. [online] Available at:
+  < https://www.c-sharpcorner.com/article/session-in-asp-net-core-mvc-net-8/ > [Accessed 4 November 2025].
+
+  Microsoft Learn, 2025. Simple authorization in ASP.NET Core. [online] Available at:
+  < https://learn.microsoft.com/en-us/aspnet/core/security/authorization/simple?view=aspnetcore-9.0 > [Accessed 4 November 2025].*/

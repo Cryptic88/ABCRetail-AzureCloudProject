@@ -15,7 +15,7 @@ namespace ABCRetail.Controllers
             _fileShareService = fileShareService;
         }
 
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> Index()
         {
             // Check if customer is logged in
@@ -37,7 +37,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpPost]
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> Upload(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -62,7 +62,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpGet]
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> DownloadFile(string fileName)
         {
             // Check if customer is logged in
@@ -85,3 +85,8 @@ namespace ABCRetail.Controllers
         }
     }
 }
+/*Reference List:
+  
+ Microsoft Learn, 2025. Filters in ASP.NET Core. [online] Available at:
+ < https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/filters?view=aspnetcore-9.0 > [Accessed 4 November 2025].
+*/

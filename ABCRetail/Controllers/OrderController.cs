@@ -66,7 +66,7 @@ namespace ABCRetail.Controllers
 
 
         [HttpGet]
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> PlaceOrder()
         {
             // Check if customer is logged in
@@ -84,7 +84,7 @@ namespace ABCRetail.Controllers
         }
 
         [HttpPost]
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> PlaceOrder(string customerId, string productId, int quantity)
         {
             if (string.IsNullOrEmpty(customerId) || string.IsNullOrEmpty(productId) || quantity <= 0)
@@ -154,7 +154,7 @@ namespace ABCRetail.Controllers
         //Simulates order processing by getting the next message from the queue and then updates the order status in Table Storage
         //This simulates the delivery process
         [HttpPost]
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> ProcessOrder(string rowKey)
         {
             if (string.IsNullOrEmpty(rowKey))
@@ -198,7 +198,7 @@ namespace ABCRetail.Controllers
 
 
         [HttpPost]
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> CancelOrder(string partitionKey, string rowKey)
         {
             if (string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey))
@@ -245,7 +245,7 @@ namespace ABCRetail.Controllers
 
 
         [HttpGet]
-        [AdminAuthorize]
+        [AdminAuthorize] //(Microsoft Learn, 2025)
         public async Task<IActionResult> GetNotifications()
         {
             // Check if customer is logged in
@@ -349,6 +349,7 @@ namespace ABCRetail.Controllers
             await _dbContext.SaveChangesAsync();
 
             // Clear cart after order
+            //(Kalla, 2024)
             HttpContext.Session.Remove("_Cart");
 
             TempData["Message"] = "Your order(s) have been placed!";
@@ -362,4 +363,7 @@ namespace ABCRetail.Controllers
 /*Refrence List:
   
   Microsoft Learn, 2025. Filters in ASP.NET Core. [online] Available at:
-  < https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/filters?view=aspnetcore-9.0 > [Accessed 4 November 2025].*/
+  < https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/filters?view=aspnetcore-9.0 > [Accessed 4 November 2025].
+
+  Kalla, M., 2024. ASP.NET Core Session Management. [online] Available at:
+  < https://www.c-sharpcorner.com/article/session-in-asp-net-core-mvc-net-8/ > [Accessed 4 November 2025].*/
