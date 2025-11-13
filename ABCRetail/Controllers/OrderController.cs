@@ -267,7 +267,7 @@ namespace ABCRetail.Controllers
             if (customerId == null)
                 return RedirectToAction("Login", "Account");
 
-            var cartJson = HttpContext.Session.GetString("Cart");
+            var cartJson = HttpContext.Session.GetString("_Cart");
             var cart = string.IsNullOrEmpty(cartJson)
                 ? new List<CartItem>()
                 : System.Text.Json.JsonSerializer.Deserialize<List<CartItem>>(cartJson);
@@ -304,6 +304,16 @@ namespace ABCRetail.Controllers
 
             var cart = System.Text.Json.JsonSerializer.Deserialize<List<CartItem>>(cartJson);
 
+            if (cart == null || !cart.Any())
+            {
+                TempData["Error"] = "Your cart is empty.";
+                return RedirectToAction("Index", "Cart");
+            }
+
+            // Clear cart before processing to prevent duplicate submissions
+            //(Kalla, 2024)
+            HttpContext.Session.Remove("_Cart");
+
             foreach (var item in cart)
             {
                 // Create Table Storage order
@@ -335,7 +345,7 @@ namespace ABCRetail.Controllers
                     {
                         new OrderItemSql
                         {
-                            ProductId = int.Parse(item.Product.Product_ID!.Split('-')[1]),
+                            ProductId = item.Product.Product_ID,
                             Quantity = item.Quantity,
                             UnitPrice = item.Product.Price.HasValue ? item.Product.Price.Value : 0
                         }
@@ -348,13 +358,10 @@ namespace ABCRetail.Controllers
             // Save all SQL orders at once
             await _dbContext.SaveChangesAsync();
 
-            // Clear cart after order
-            //(Kalla, 2024)
-            HttpContext.Session.Remove("_Cart");
-
             TempData["Message"] = "Your order(s) have been placed!";
             return RedirectToAction("CustomerIndex");
         }
+
 
 
     }

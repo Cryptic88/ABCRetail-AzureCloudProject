@@ -10,7 +10,7 @@ namespace ABCRetail.Models
         public int OrderId { get; set; }
         public OrderSql Order { get; set; }
 
-        public int ProductId { get; set; }
+        public string? ProductId { get; set; }
         public ProductSql Product { get; set; }
 
         public int Quantity { get; set; }
