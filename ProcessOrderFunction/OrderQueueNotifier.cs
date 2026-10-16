@@ -1,33 +1,36 @@
-﻿using Microsoft.Azure.Functions.Worker;
+﻿using Azure.Storage.Queues;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
-using Azure.Storage.Queues;
 
 namespace ProcessOrderFunction
 {
     public class OrderQueueNotifier
     {
         private readonly ILogger<OrderQueueNotifier> _logger;
-        private readonly string _notificationsConnection;
+        private readonly QueueClient _notificationsQueue;
 
         public OrderQueueNotifier(ILogger<OrderQueueNotifier> logger)
         {
             _logger = logger;
-            _notificationsConnection = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
+
+            var conn = Environment.GetEnvironmentVariable("StorageConnection")
+                ?? throw new InvalidOperationException("StorageConnection is not configured.");
+
+            _notificationsQueue = new QueueClient(conn, "notification");
         }
 
         [Function(nameof(OrderQueueNotifier))]
         public async Task Run(
-            [QueueTrigger("orders", Connection = "AzureWebJobsStorage")] string messageText)
+            [QueueTrigger("orders", Connection = "StorageConnection")] string messageText)
         {
             _logger.LogInformation("===== Queue Trigger Started =====");
-            _logger.LogInformation($"Raw queue message: {messageText}");
+            _logger.LogInformation("Raw queue message: {Message}", messageText);
 
             try
             {
-
                 var order = JsonConvert.DeserializeObject<Order>(messageText, new JsonSerializerSettings
                 {
                     MissingMemberHandling = MissingMemberHandling.Ignore,
@@ -40,12 +43,10 @@ namespace ProcessOrderFunction
                     return;
                 }
 
-                _logger.LogInformation($"Processing Order: {order.Order_ID}");
-                _logger.LogInformation($"Customer ID: {order.Customer_Id}");
-                _logger.LogInformation($"Product ID: {order.Product_ID}");
-                _logger.LogInformation($"Quantity: {order.Quantity}");
-                _logger.LogInformation($"Status: {order.Status}");
-                _logger.LogInformation($"Order Date: {order.OrderDate}");
+                _logger.LogInformation(
+                    "Processing Order {OrderId} | Customer {CustomerId} | Product {ProductId} | Qty {Quantity} | Status {Status} | Date {OrderDate}",
+                    order.Order_ID, order.Customer_Id, order.Product_ID,
+                    order.Quantity, order.Status, order.OrderDate);
 
                 //(Microsoft Learn, 2024)
                 // Create a custom, user-friendly message
@@ -56,11 +57,10 @@ namespace ProcessOrderFunction
                                      $"Status: {order.Status}";
 
                 // Send notification to the notifications queue
-                var notificationsQueue = new QueueClient(_notificationsConnection, "notification");
-                await notificationsQueue.CreateIfNotExistsAsync();
-                await notificationsQueue.SendMessageAsync(userMessage);
+                await _notificationsQueue.CreateIfNotExistsAsync();
+                await _notificationsQueue.SendMessageAsync(userMessage);
 
-                _logger.LogInformation($"Notification sent: {userMessage}");
+                _logger.LogInformation("Notification sent: {Notification}", userMessage);
             }
             catch (JsonException ex)
             {

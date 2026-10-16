@@ -23,7 +23,8 @@ namespace UploadFileFunction
         {
             try
             {
-                string connectionString = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
+                var connectionString = Environment.GetEnvironmentVariable("StorageConnection")
+                ?? throw new InvalidOperationException("StorageConnection is not configured.");
                 string shareName = "dummycontracts";
                 string directoryName = "dummycontracts";
 

@@ -21,7 +21,10 @@ public class WriteMessageQueue
     public WriteMessageQueue(ILogger<WriteMessageQueue> logger)
     {
         _logger = logger;
-        _connectionString = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
+        var conn = Environment.GetEnvironmentVariable("StorageConnection")
+            ?? throw new InvalidOperationException("StorageConnection is not configured.");
+
+        _connectionString = conn;
     }
 
     //(Microsoft Learn, 2024)

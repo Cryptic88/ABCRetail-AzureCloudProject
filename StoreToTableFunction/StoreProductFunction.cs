@@ -19,7 +19,8 @@ namespace StoreToTableFunction
         public StoreProductFunction(ILogger<StoreProductFunction> logger)
         {
             _logger = logger;
-            string connectionString = "DefaultEndpointsProtocol=https;AccountName=st10439009;AccountKey=REMOVED;EndpointSuffix=core.windows.net";
+            var connectionString = Environment.GetEnvironmentVariable("StorageConnection")
+                ?? throw new InvalidOperationException("StorageConnection is not configured.");
             _productTableClient = new TableClient(connectionString, "product");
             _productTableClient.CreateIfNotExists();
         }
