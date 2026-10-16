@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ABCRetail.Models;
+//
 
 namespace ABCRetail.Data
 {
